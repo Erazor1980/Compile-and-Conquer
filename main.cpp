@@ -1,7 +1,9 @@
-#include "Unit.hpp"
+#include "Game.hpp"
 
 int main()
 {
-	Unit test({ 10, 10 }, { 0, 0 }, 10);
-	return 0;
+    Game game;
+    game.run();
+
+    return 0;
 }
