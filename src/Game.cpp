@@ -76,7 +76,13 @@ void Game::processEvents()
 
                 handleSelection(selectionRect, !m_bHasDragged);
             }
-        }        
+            else if (pMouseButtonReleased->button == sf::Mouse::Button::Right)
+            {
+                const sf::Vector2i mousePixelPosition{ pMouseButtonReleased->position.x, pMouseButtonReleased->position.y };
+                const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition);
+                m_world.moveSelectedUnitsTo(worldPosition);
+            }
+        }
     }
 }
 

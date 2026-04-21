@@ -3,9 +3,9 @@
 World::World()
 {
     // adding some test units
-    m_vUnits.emplace_back(sf::Vector2f{ 100.0f, 100.0f }, sf::Vector2f{ 30.0f, 0.0f }, 12.0f);
-    m_vUnits.emplace_back(sf::Vector2f{ 200.0f, 180.0f }, sf::Vector2f{ 0.0f, 20.0f }, 12.0f);
-    m_vUnits.emplace_back(sf::Vector2f{ 320.0f, 260.0f }, sf::Vector2f{ 15.0f, 10.0f }, 12.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 100.0f, 100.0f }, 12.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 200.0f, 180.0f }, 12.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 320.0f, 260.0f }, 12.0f);
 }
 
 void World::update(float deltaTime)
@@ -78,6 +78,17 @@ void World::toggleUnitsInRect(const sf::FloatRect& rect)
         if (rect.contains(unit.getPosition()))
         {
             unit.setSelected(!unit.isSelected());
+        }
+    }
+}
+
+void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
+{
+    for (Unit& unit : m_vUnits)
+    {
+        if (unit.isSelected())
+        {
+            unit.setMoveTarget(targetPosition);
         }
     }
 }

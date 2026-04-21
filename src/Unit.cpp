@@ -1,15 +1,41 @@
 #include "Unit.hpp"
 
-Unit::Unit(sf::Vector2f position, sf::Vector2f velocity, float radius)
+Unit::Unit(sf::Vector2f position, float radius)
     : m_position(position)
-    , m_velocity(velocity)
+    , m_targetPosition(position)
     , m_radius(radius)
 {
 }
 
 void Unit::update(float deltaTime)
 {
-    m_position += m_velocity * deltaTime;
+    if (!m_bHasMoveTarget)
+    {
+        return;
+    }
+
+    const sf::Vector2f toTarget = m_targetPosition - m_position;
+    const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
+
+    if (distanceSquared <= 0.0001f)
+    {
+        m_position = m_targetPosition;
+        m_bHasMoveTarget = false;
+        return;
+    }
+
+    const float distance = std::sqrt(distanceSquared);
+    const float maxStep = m_moveSpeed * deltaTime;
+
+    if (distance <= maxStep)
+    {
+        m_position = m_targetPosition;
+        m_bHasMoveTarget = false;
+        return;
+    }
+
+    const sf::Vector2f direction = toTarget / distance;
+    m_position += direction * maxStep;
 }
 
 void Unit::render(sf::RenderTarget& target) const
@@ -55,4 +81,21 @@ bool Unit::contains(const sf::Vector2f& worldPosition) const
     const float radiusSquared = m_radius * m_radius;
 
     return distanceSquared <= radiusSquared;
+}
+
+void Unit::setMoveTarget(const sf::Vector2f& targetPosition)
+{
+    m_targetPosition = targetPosition;
+    m_bHasMoveTarget = true;
+}
+
+void Unit::stopMovement()
+{
+    m_targetPosition = m_position;
+    m_bHasMoveTarget = false;
+}
+
+bool Unit::hasMoveTarget() const
+{
+    return m_bHasMoveTarget;
 }
