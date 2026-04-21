@@ -35,7 +35,17 @@ void Game::processEvents()
                 const sf::Vector2i mousePixelPosition{ pMouseButtonPressed->position.x, pMouseButtonPressed->position.y };
                 const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition);
 
-                m_world.selectUnitAt(worldPosition);
+                const bool bCtrlPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LControl)
+                    || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RControl);
+
+                if (bCtrlPressed)
+                {
+                    m_world.toggleUnitAt(worldPosition);
+                }
+                else
+                {
+                    m_world.selectUnitAt(worldPosition);
+                }
             }
         }
     }

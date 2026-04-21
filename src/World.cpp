@@ -41,7 +41,19 @@ void World::selectUnitAt(const sf::Vector2f& worldPosition)
         if (it->contains(worldPosition))
         {
             it->setSelected(true);
-            break;
+            return;
+        }
+    }
+}
+
+void World::toggleUnitAt(const sf::Vector2f& worldPosition)
+{
+    for (auto it = m_vUnits.rbegin(); it != m_vUnits.rend(); ++it)
+    {
+        if (it->contains(worldPosition))
+        {
+            it->setSelected(!it->isSelected());
+            return;
         }
     }
 }
