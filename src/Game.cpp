@@ -24,7 +24,7 @@ void Game::processEvents()
 {
     while (const std::optional event = m_window.pollEvent())
     {
-        if (event->is<sf::Event::Closed>())
+        if (event->is<sf::Event::Closed>() || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
         {
             m_window.close();
         }

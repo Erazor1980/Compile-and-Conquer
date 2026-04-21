@@ -56,6 +56,23 @@ void Unit::render(sf::RenderTarget& target) const
     }
 
     target.draw(shape);
+
+    if (m_bSelected && m_bHasMoveTarget)
+    {
+        sf::Vertex line[] =
+        {
+            sf::Vertex{ m_position, sf::Color::Red },
+            sf::Vertex{ m_targetPosition, sf::Color::Red }
+        };
+
+        sf::CircleShape targetMarker(4.0f);
+        targetMarker.setFillColor(sf::Color::Red);
+        targetMarker.setOrigin({ 4.0f, 4.0f });
+        targetMarker.setPosition(m_targetPosition);
+
+        target.draw(line, 2, sf::PrimitiveType::Lines);
+        target.draw(targetMarker);
+    }
 }
 
 const sf::Vector2f& Unit::getPosition() const
