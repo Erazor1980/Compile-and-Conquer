@@ -14,7 +14,15 @@ private:
     void update(float deltaTime);
     void render();
 
-private:
+    void handleSelection(const sf::FloatRect& selectionRect, bool bIsClick);
+
+private:    
     sf::RenderWindow m_window;
     World m_world;
+
+    bool m_bIsSelecting{ false };
+    bool m_bHasDragged{ false };
+
+    sf::Vector2f m_selectionStart;
+    sf::Vector2f m_selectionCurrent;
 };

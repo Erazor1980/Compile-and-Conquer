@@ -14,6 +14,8 @@ public:
     void clearSelection();
     void selectUnitAt(const sf::Vector2f& worldPosition);
     void toggleUnitAt(const sf::Vector2f& worldPosition);
+    void selectUnitsInRect(const sf::FloatRect& rect);
+    void toggleUnitsInRect(const sf::FloatRect& rect);
 private:
     std::vector<Unit> m_vUnits;
 };

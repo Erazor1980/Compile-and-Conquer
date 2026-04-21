@@ -57,3 +57,27 @@ void World::toggleUnitAt(const sf::Vector2f& worldPosition)
         }
     }
 }
+
+void World::selectUnitsInRect(const sf::FloatRect& rect)
+{
+    clearSelection();
+
+    for (Unit& unit : m_vUnits)
+    {
+        if (rect.contains(unit.getPosition()))
+        {
+            unit.setSelected(true);
+        }
+    }
+}
+
+void World::toggleUnitsInRect(const sf::FloatRect& rect)
+{
+    for (Unit& unit : m_vUnits)
+    {
+        if (rect.contains(unit.getPosition()))
+        {
+            unit.setSelected(!unit.isSelected());
+        }
+    }
+}
