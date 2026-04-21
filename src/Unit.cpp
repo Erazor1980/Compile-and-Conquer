@@ -51,7 +51,8 @@ bool Unit::contains(const sf::Vector2f& worldPosition) const
 {
     const sf::Vector2f delta = worldPosition - m_position;
     const float distanceSquared = (delta.x * delta.x) + (delta.y * delta.y);
-    const float radiusSquared = m_selectionRadius * m_selectionRadius;
+    //const float radiusSquared = m_selectionRadius * m_selectionRadius;
+    const float radiusSquared = m_radius * m_radius;
 
     return distanceSquared <= radiusSquared;
 }

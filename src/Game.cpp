@@ -28,6 +28,16 @@ void Game::processEvents()
         {
             m_window.close();
         }
+        else if (const auto* pMouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
+        {
+            if (pMouseButtonPressed->button == sf::Mouse::Button::Left)
+            {
+                const sf::Vector2i mousePixelPosition{ pMouseButtonPressed->position.x, pMouseButtonPressed->position.y };
+                const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition);
+
+                m_world.selectUnitAt(worldPosition);
+            }
+        }
     }
 }
 

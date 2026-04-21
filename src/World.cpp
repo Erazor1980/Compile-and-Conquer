@@ -23,3 +23,25 @@ void World::render(sf::RenderTarget& target) const
         unit.render(target);
     }
 }
+
+void World::clearSelection()
+{
+    for (Unit& unit : m_vUnits)
+    {
+        unit.setSelected(false);
+    }
+}
+
+void World::selectUnitAt(const sf::Vector2f& worldPosition)
+{
+    clearSelection();
+
+    for (auto it = m_vUnits.rbegin(); it != m_vUnits.rend(); ++it)
+    {
+        if (it->contains(worldPosition))
+        {
+            it->setSelected(true);
+            break;
+        }
+    }
+}

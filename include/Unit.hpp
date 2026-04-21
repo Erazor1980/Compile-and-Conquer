@@ -22,5 +22,5 @@ private:
     float m_radius;
 
     bool m_bSelected{ false };
-    float m_selectionRadius{ 18.0f };
+    //float m_selectionRadius{ 18.0f };
 };
