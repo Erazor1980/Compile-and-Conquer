@@ -5,7 +5,7 @@
 class Unit
 {
 public:
-    Unit(sf::Vector2f position, float radius);
+    Unit(sf::Vector2f position, float radius, float moveSpeed);
 
     void update(float deltaTime);
     void render(sf::RenderTarget& target) const;

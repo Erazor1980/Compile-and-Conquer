@@ -1,9 +1,10 @@
 #include "Unit.hpp"
 
-Unit::Unit(sf::Vector2f position, float radius)
+Unit::Unit(sf::Vector2f position, float radius, float moveSpeed)
     : m_position(position)
     , m_targetPosition(position)
     , m_radius(radius)
+    , m_moveSpeed(moveSpeed)
 {
 }
 
