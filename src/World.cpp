@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "World.hpp"
 
 World::World()
@@ -9,6 +11,12 @@ World::World()
     m_vUnits.emplace_back(sf::Vector2f{ 500.0f, 700.0f }, 12.0f, 120.0f);
     m_vUnits.emplace_back(sf::Vector2f{ 600.0f, 400.0f }, 12.0f, 120.0f);
     m_vUnits.emplace_back(sf::Vector2f{ 800.0f, 300.0f }, 12.0f, 120.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 800.0f, 600.0f }, 12.0f, 120.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 800.0f, 740.0f }, 12.0f, 120.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 840.0f, 360.0f }, 12.0f, 120.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 1000.0f, 460.0f }, 12.0f, 120.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 1000.0f, 760.0f }, 12.0f, 120.0f);
+    m_vUnits.emplace_back(sf::Vector2f{ 1000.0f, 260.0f }, 12.0f, 120.0f);
 }
 
 void World::update(float deltaTime)
@@ -92,20 +100,38 @@ void World::toggleUnitsInRect(const sf::FloatRect& rect)
 
 void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
 {
+    std::size_t selectedCount = 0;
+
+    for (const Unit& unit : m_vUnits)
+    {
+        if (unit.isSelected())
+        {
+            ++selectedCount;
+        }
+    }
+
+    if (selectedCount == 0)
+    {
+        return;
+    }
+
+    const float spacing = 20.0f;
+    const std::size_t columns = static_cast<std::size_t>(std::ceil(std::sqrt(static_cast<float>(selectedCount))));
+
     std::size_t selectedIndex = 0;
 
     for (Unit& unit : m_vUnits)
     {
         if (unit.isSelected())
         {
-            const std::size_t row = selectedIndex / 3;
-            const std::size_t column = selectedIndex % 3;
+            const std::size_t row = selectedIndex / columns;
+            const std::size_t column = selectedIndex % columns;
 
-            const float offsetX = (static_cast<float>(column) - 1.0f) * 20.0f;
-            const float offsetY = static_cast<float>(row) * 20.0f;
+            const float offsetX = (static_cast<float>(column) - (static_cast<float>(columns) - 1.0f) * 0.5f) * spacing;
+            const float offsetY = static_cast<float>(row) * spacing;
 
             unit.setMoveTarget(targetPosition + sf::Vector2f{ offsetX, offsetY });
             ++selectedIndex;
         }
-    }
+    }    
 }
