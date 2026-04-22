@@ -21,10 +21,14 @@ public:
     [[nodiscard]] const sf::Vector2f& getPosition() const;
     [[nodiscard]] float getRadius() const;
     [[nodiscard]] UnitFaction getFaction() const;
+    [[nodiscard]] float getHitPoints() const;
+    [[nodiscard]] bool isAlive() const;
 
     void setSelected(bool bSelected);
     [[nodiscard]] bool isSelected() const;
     [[nodiscard]] bool contains(const sf::Vector2f& worldPosition) const;
+
+    void applyDamage(float damage);
 
     void issueMoveCommand(const sf::Vector2f& targetPosition);
     void issueAttackCommand(Unit* pTargetUnit);
@@ -37,6 +41,9 @@ private:
     float m_radius;
     float m_moveSpeed{ 120.0f };
     UnitFaction m_faction{ UnitFaction::Player };
+
+    float m_hitPoints{ 100.0f };
+    float m_attackDamagePerSecond{ 40.0f };
 
     bool m_bSelected{ false };
 

@@ -52,6 +52,12 @@ void Unit::update(float deltaTime)
             return;
         }
 
+        if (!pAttackCommand->m_pTargetUnit->isAlive())
+        {
+            m_activeCommand.reset();
+            return;
+        }
+
         const sf::Vector2f targetPosition = pAttackCommand->m_pTargetUnit->getPosition();
         const sf::Vector2f toTarget = targetPosition - m_position;
         const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
@@ -61,6 +67,13 @@ void Unit::update(float deltaTime)
 
         if (distanceSquared <= stopDistanceSquared)
         {
+            pAttackCommand->m_pTargetUnit->applyDamage(m_attackDamagePerSecond * deltaTime);
+
+            if (!pAttackCommand->m_pTargetUnit->isAlive())
+            {
+                m_activeCommand.reset();
+            }
+
             return;
         }
 
@@ -157,6 +170,16 @@ UnitFaction Unit::getFaction() const
     return m_faction;
 }
 
+float Unit::getHitPoints() const
+{
+    return m_hitPoints;
+}
+
+bool Unit::isAlive() const
+{
+    return m_hitPoints > 0.0f;
+}
+
 void Unit::setSelected(bool bSelected)
 {
     m_bSelected = bSelected;
@@ -175,6 +198,26 @@ bool Unit::contains(const sf::Vector2f& worldPosition) const
     const float radiusSquared = m_radius * m_radius;
 
     return distanceSquared <= radiusSquared;
+}
+
+void Unit::applyDamage(float damage)
+{
+    if (damage <= 0.0f)
+    {
+        return;
+    }
+
+    if (!isAlive())
+    {
+        return;
+    }
+
+    m_hitPoints -= damage;
+
+    if (m_hitPoints < 0.0f)
+    {
+        m_hitPoints = 0.0f;
+    }
 }
 
 void Unit::issueMoveCommand(const sf::Vector2f& targetPosition)

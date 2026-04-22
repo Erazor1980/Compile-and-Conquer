@@ -28,5 +28,8 @@ private:
     Unit* findEnemyUnitAt(const sf::Vector2f& worldPosition);
     const Unit* findEnemyUnitAt(const sf::Vector2f& worldPosition) const;
 
+    Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition);
+    const Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition) const;
+
     std::vector<Unit> m_vUnits;
 };

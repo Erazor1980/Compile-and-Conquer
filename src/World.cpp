@@ -54,7 +54,7 @@ void World::selectUnitAt(const sf::Vector2f& worldPosition)
 {
     clearSelection();
 
-    Unit* pUnit = findUnitAt(worldPosition);
+    Unit* pUnit = findPlayerUnitAt(worldPosition);
     if (pUnit != nullptr)
     {
         pUnit->setSelected(true);
@@ -63,7 +63,7 @@ void World::selectUnitAt(const sf::Vector2f& worldPosition)
 
 void World::toggleUnitAt(const sf::Vector2f& worldPosition)
 {
-    Unit* pUnit = findUnitAt(worldPosition);
+    Unit* pUnit = findPlayerUnitAt(worldPosition);
     if (pUnit != nullptr)
     {
         pUnit->setSelected(!pUnit->isSelected());
@@ -76,7 +76,7 @@ void World::selectUnitsInRect(const sf::FloatRect& rect)
 
     for (Unit& unit : m_vUnits)
     {
-        if (rect.contains(unit.getPosition()))
+        if (unit.getFaction() == UnitFaction::Player && rect.contains(unit.getPosition()))
         {
             unit.setSelected(true);
         }
@@ -87,7 +87,7 @@ void World::toggleUnitsInRect(const sf::FloatRect& rect)
 {
     for (Unit& unit : m_vUnits)
     {
-        if (rect.contains(unit.getPosition()))
+        if (unit.getFaction() == UnitFaction::Player && rect.contains(unit.getPosition()))
         {
             unit.setSelected(!unit.isSelected());
         }
@@ -215,6 +215,38 @@ const Unit* World::findEnemyUnitAt(const sf::Vector2f& worldPosition) const
     }
 
     if (pUnit->getFaction() != UnitFaction::Enemy)
+    {
+        return nullptr;
+    }
+
+    return pUnit;
+}
+
+Unit* World::findPlayerUnitAt(const sf::Vector2f& worldPosition)
+{
+    Unit* pUnit = findUnitAt(worldPosition);
+    if (pUnit == nullptr)
+    {
+        return nullptr;
+    }
+
+    if (pUnit->getFaction() != UnitFaction::Player)
+    {
+        return nullptr;
+    }
+
+    return pUnit;
+}
+
+const Unit* World::findPlayerUnitAt(const sf::Vector2f& worldPosition) const
+{
+    const Unit* pUnit = findUnitAt(worldPosition);
+    if (pUnit == nullptr)
+    {
+        return nullptr;
+    }
+
+    if (pUnit->getFaction() != UnitFaction::Player)
     {
         return nullptr;
     }
