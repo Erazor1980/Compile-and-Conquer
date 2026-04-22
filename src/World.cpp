@@ -54,25 +54,19 @@ void World::selectUnitAt(const sf::Vector2f& worldPosition)
 {
     clearSelection();
 
-    for (auto it = m_vUnits.rbegin(); it != m_vUnits.rend(); ++it)
+    Unit* pUnit = findUnitAt(worldPosition);
+    if (pUnit != nullptr)
     {
-        if (it->contains(worldPosition))
-        {
-            it->setSelected(true);
-            return;
-        }
+        pUnit->setSelected(true);
     }
 }
 
 void World::toggleUnitAt(const sf::Vector2f& worldPosition)
 {
-    for (auto it = m_vUnits.rbegin(); it != m_vUnits.rend(); ++it)
+    Unit* pUnit = findUnitAt(worldPosition);
+    if (pUnit != nullptr)
     {
-        if (it->contains(worldPosition))
-        {
-            it->setSelected(!it->isSelected());
-            return;
-        }
+        pUnit->setSelected(!pUnit->isSelected());
     }
 }
 
@@ -98,6 +92,26 @@ void World::toggleUnitsInRect(const sf::FloatRect& rect)
             unit.setSelected(!unit.isSelected());
         }
     }
+}
+
+void World::handleRightClick(const sf::Vector2f& worldPosition)
+{
+    Unit* pTargetUnit = findEnemyUnitAt(worldPosition);
+
+    if (pTargetUnit != nullptr)
+    {
+        for (Unit& unit : m_vUnits)
+        {
+            if (unit.isSelected() && unit.getFaction() == UnitFaction::Player)
+            {
+                unit.issueAttackCommand(pTargetUnit);
+            }
+        }
+
+        return;
+    }
+
+    moveSelectedUnitsTo(worldPosition);
 }
 
 void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
@@ -148,4 +162,62 @@ void World::stopSelectedUnits()
             unit.clearCommand();
         }
     }
+}
+
+Unit* World::findUnitAt(const sf::Vector2f& worldPosition)
+{
+    for (auto it = m_vUnits.rbegin(); it != m_vUnits.rend(); ++it)
+    {
+        if (it->contains(worldPosition))
+        {
+            return &(*it);
+        }
+    }
+
+    return nullptr;
+}
+
+const Unit* World::findUnitAt(const sf::Vector2f& worldPosition) const
+{
+    for (auto it = m_vUnits.rbegin(); it != m_vUnits.rend(); ++it)
+    {
+        if (it->contains(worldPosition))
+        {
+            return &(*it);
+        }
+    }
+
+    return nullptr;
+}
+
+Unit* World::findEnemyUnitAt(const sf::Vector2f& worldPosition)
+{
+    Unit* pUnit = findUnitAt(worldPosition);
+    if (pUnit == nullptr)
+    {
+        return nullptr;
+    }
+
+    if (pUnit->getFaction() != UnitFaction::Enemy)
+    {
+        return nullptr;
+    }
+
+    return pUnit;
+}
+
+const Unit* World::findEnemyUnitAt(const sf::Vector2f& worldPosition) const
+{
+    const Unit* pUnit = findUnitAt(worldPosition);
+    if (pUnit == nullptr)
+    {
+        return nullptr;
+    }
+
+    if (pUnit->getFaction() != UnitFaction::Enemy)
+    {
+        return nullptr;
+    }
+
+    return pUnit;
 }

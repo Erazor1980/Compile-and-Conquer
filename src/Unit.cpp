@@ -15,28 +15,68 @@ void Unit::update(float deltaTime)
         return;
     }
 
-    const sf::Vector2f toTarget = m_activeCommand->targetPosition - m_position;
-    const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
-
-    if (distanceSquared <= 0.0001f)
+    // move command
+    if (MoveCommand* pMoveCommand = std::get_if<MoveCommand>(&m_activeCommand.value()))
     {
-        m_position = m_activeCommand->targetPosition;
-        m_activeCommand.reset();
+        const sf::Vector2f toTarget = pMoveCommand->targetPosition - m_position;
+        const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
+
+        if (distanceSquared <= 0.0001f)
+        {
+            m_position = pMoveCommand->targetPosition;
+            m_activeCommand.reset();
+            return;
+        }
+
+        const float distance = std::sqrt(distanceSquared);
+        const float maxStep = m_moveSpeed * deltaTime;
+
+        if (distance <= maxStep)
+        {
+            m_position = pMoveCommand->targetPosition;
+            m_activeCommand.reset();
+            return;
+        }
+
+        const sf::Vector2f direction = toTarget / distance;
+        m_position += direction * maxStep;
         return;
     }
 
-    const float distance = std::sqrt(distanceSquared);
-    const float maxStep = m_moveSpeed * deltaTime;
-
-    if (distance <= maxStep)
+    // attack command
+    if (AttackCommand* pAttackCommand = std::get_if<AttackCommand>(&m_activeCommand.value()))
     {
-        m_position = m_activeCommand->targetPosition;
-        m_activeCommand.reset();
+        if (pAttackCommand->m_pTargetUnit == nullptr)
+        {
+            m_activeCommand.reset();
+            return;
+        }
+
+        const sf::Vector2f targetPosition = pAttackCommand->m_pTargetUnit->getPosition();
+        const sf::Vector2f toTarget = targetPosition - m_position;
+        const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
+
+        const float stopDistance = m_radius + 4.0f; // todo: this should be changed to "shooting distance" in future (or a more advanced logic)
+        const float stopDistanceSquared = stopDistance * stopDistance;
+
+        if (distanceSquared <= stopDistanceSquared)
+        {
+            return;
+        }
+
+        const float distance = std::sqrt(distanceSquared);
+        const float maxStep = m_moveSpeed * deltaTime;
+
+        if (distance <= maxStep)
+        {
+            m_position = targetPosition;
+            return;
+        }
+
+        const sf::Vector2f direction = toTarget / distance;
+        m_position += direction * maxStep;
         return;
     }
-
-    const sf::Vector2f direction = toTarget / distance;
-    m_position += direction * maxStep;
 }
 
 void Unit::render(sf::RenderTarget& target) const
@@ -66,21 +106,24 @@ void Unit::render(sf::RenderTarget& target) const
 
     target.draw(shape);
 
-    if (m_bSelected && m_activeCommand)
+    if (m_bSelected && m_activeCommand.has_value())
     {
-        sf::Vertex line[] =
+        if (const MoveCommand* pMoveCommand = std::get_if<MoveCommand>(&m_activeCommand.value()))
         {
-            sf::Vertex{ m_position, sf::Color::Red },
-            sf::Vertex{ m_activeCommand->targetPosition, sf::Color::Red }
-        };
+            sf::Vertex line[] =
+            {
+                sf::Vertex{ m_position, sf::Color::Red },
+                sf::Vertex{ pMoveCommand->targetPosition, sf::Color::Red }
+            };
 
-        sf::CircleShape targetMarker(4.0f);
-        targetMarker.setFillColor(sf::Color::Red);
-        targetMarker.setOrigin({ 4.0f, 4.0f });
-        targetMarker.setPosition(m_activeCommand->targetPosition);
+            sf::CircleShape targetMarker(4.0f);
+            targetMarker.setFillColor(sf::Color::Red);
+            targetMarker.setOrigin({ 4.0f, 4.0f });
+            targetMarker.setPosition(pMoveCommand->targetPosition);
 
-        target.draw(line, 2, sf::PrimitiveType::Lines);
-        target.draw(targetMarker);
+            target.draw(line, 2, sf::PrimitiveType::Lines);
+            target.draw(targetMarker);
+        }
     }
 }
 
@@ -117,6 +160,16 @@ bool Unit::contains(const sf::Vector2f& worldPosition) const
 void Unit::issueMoveCommand(const sf::Vector2f& targetPosition)
 {
     m_activeCommand = MoveCommand{ targetPosition };
+}
+
+void Unit::issueAttackCommand(Unit* pTargetUnit)
+{
+    if (pTargetUnit == nullptr)
+    {
+        return;
+    }
+
+    m_activeCommand = AttackCommand{ pTargetUnit };
 }
 
 void Unit::clearCommand()

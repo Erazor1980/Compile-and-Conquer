@@ -26,7 +26,9 @@ public:
     [[nodiscard]] bool contains(const sf::Vector2f& worldPosition) const;
 
     void issueMoveCommand(const sf::Vector2f& targetPosition);
+    void issueAttackCommand(Unit* pTargetUnit);
     void clearCommand();
+
     [[nodiscard]] bool hasActiveCommand() const;
 
 private:
@@ -37,6 +39,6 @@ private:
 
     bool m_bSelected{ false };
 
-    std::optional<MoveCommand> m_activeCommand;
+    std::optional<Command> m_activeCommand;
     //float m_selectionRadius{ 18.0f };
 };

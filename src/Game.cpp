@@ -90,7 +90,7 @@ void Game::processEvents()
             {
                 const sf::Vector2i mousePixelPosition{ pMouseButtonReleased->position.x, pMouseButtonReleased->position.y };
                 const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition);
-                m_world.moveSelectedUnitsTo(worldPosition);
+                m_world.handleRightClick(worldPosition);
             }
         }
     }
