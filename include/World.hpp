@@ -18,6 +18,7 @@ public:
     void toggleUnitsInRect(const sf::FloatRect& rect);
 
     void moveSelectedUnitsTo(const sf::Vector2f& targetPosition);
+    void stopSelectedUnits();
 private:
     std::vector<Unit> m_vUnits;
 };

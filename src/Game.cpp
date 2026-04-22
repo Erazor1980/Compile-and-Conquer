@@ -24,10 +24,20 @@ void Game::processEvents()
 {
     while (const std::optional event = m_window.pollEvent())
     {
+        // close game
         if (event->is<sf::Event::Closed>() || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
         {
             m_window.close();
         }
+        // stop units
+        else if (const auto* pKeyPressed = event->getIf<sf::Event::KeyPressed>())
+        {
+            if (pKeyPressed->code == sf::Keyboard::Key::S)
+            {
+                m_world.stopSelectedUnits();
+            }
+        }
+        // unit selection (including box)
         else if (const auto* pMouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
         {
             if (pMouseButtonPressed->button == sf::Mouse::Button::Left)

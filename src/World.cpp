@@ -135,3 +135,15 @@ void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
         }
     }    
 }
+
+
+void World::stopSelectedUnits()
+{
+    for (Unit& unit : m_vUnits)
+    {
+        if (unit.isSelected())
+        {
+            unit.clearCommand();
+        }
+    }
+}
