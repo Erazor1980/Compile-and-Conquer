@@ -2,7 +2,6 @@
 
 Unit::Unit(sf::Vector2f position, float radius, float moveSpeed)
     : m_position(position)
-    , m_targetPosition(position)
     , m_radius(radius)
     , m_moveSpeed(moveSpeed)
 {
@@ -10,18 +9,18 @@ Unit::Unit(sf::Vector2f position, float radius, float moveSpeed)
 
 void Unit::update(float deltaTime)
 {
-    if (!m_bHasMoveTarget)
+    if (!m_activeCommand.has_value())
     {
         return;
     }
 
-    const sf::Vector2f toTarget = m_targetPosition - m_position;
+    const sf::Vector2f toTarget = m_activeCommand->targetPosition - m_position;
     const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
 
     if (distanceSquared <= 0.0001f)
     {
-        m_position = m_targetPosition;
-        m_bHasMoveTarget = false;
+        m_position = m_activeCommand->targetPosition;
+        m_activeCommand.reset();
         return;
     }
 
@@ -30,8 +29,8 @@ void Unit::update(float deltaTime)
 
     if (distance <= maxStep)
     {
-        m_position = m_targetPosition;
-        m_bHasMoveTarget = false;
+        m_position = m_activeCommand->targetPosition;
+        m_activeCommand.reset();
         return;
     }
 
@@ -58,18 +57,18 @@ void Unit::render(sf::RenderTarget& target) const
 
     target.draw(shape);
 
-    if (m_bSelected && m_bHasMoveTarget)
+    if (m_bSelected && m_activeCommand)
     {
         sf::Vertex line[] =
         {
             sf::Vertex{ m_position, sf::Color::Red },
-            sf::Vertex{ m_targetPosition, sf::Color::Red }
+            sf::Vertex{ m_activeCommand->targetPosition, sf::Color::Red }
         };
 
         sf::CircleShape targetMarker(4.0f);
         targetMarker.setFillColor(sf::Color::Red);
         targetMarker.setOrigin({ 4.0f, 4.0f });
-        targetMarker.setPosition(m_targetPosition);
+        targetMarker.setPosition(m_activeCommand->targetPosition);
 
         target.draw(line, 2, sf::PrimitiveType::Lines);
         target.draw(targetMarker);
@@ -101,19 +100,17 @@ bool Unit::contains(const sf::Vector2f& worldPosition) const
     return distanceSquared <= radiusSquared;
 }
 
-void Unit::setMoveTarget(const sf::Vector2f& targetPosition)
+void Unit::issueMoveCommand(const sf::Vector2f& targetPosition)
 {
-    m_targetPosition = targetPosition;
-    m_bHasMoveTarget = true;
+    m_activeCommand = MoveCommand{ targetPosition };
 }
 
-void Unit::stopMovement()
+void Unit::clearCommand()
 {
-    m_targetPosition = m_position;
-    m_bHasMoveTarget = false;
+    m_activeCommand.reset();
 }
 
-bool Unit::hasMoveTarget() const
+bool Unit::hasActiveCommand() const
 {
-    return m_bHasMoveTarget;
+    return m_activeCommand.has_value();
 }

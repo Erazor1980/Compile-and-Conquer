@@ -130,7 +130,7 @@ void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
             const float offsetX = (static_cast<float>(column) - (static_cast<float>(columns) - 1.0f) * 0.5f) * spacing;
             const float offsetY = static_cast<float>(row) * spacing;
 
-            unit.setMoveTarget(targetPosition + sf::Vector2f{ offsetX, offsetY });
+            unit.issueMoveCommand(targetPosition + sf::Vector2f{offsetX, offsetY});
             ++selectedIndex;
         }
     }    
