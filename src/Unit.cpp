@@ -1,9 +1,10 @@
 #include "Unit.hpp"
 
-Unit::Unit(sf::Vector2f position, float radius, float moveSpeed)
+Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction)
     : m_position(position)
     , m_radius(radius)
     , m_moveSpeed(moveSpeed)
+    , m_faction(faction)
 {
 }
 
@@ -41,7 +42,15 @@ void Unit::update(float deltaTime)
 void Unit::render(sf::RenderTarget& target) const
 {
     sf::CircleShape shape(m_radius);
-    shape.setFillColor(sf::Color::Green);
+    if (m_faction == UnitFaction::Player)
+    {
+        shape.setFillColor(sf::Color::Green);
+    }
+    else
+    {
+        shape.setFillColor(sf::Color::Red);
+    }
+
     shape.setOrigin({ m_radius, m_radius });
     shape.setPosition(m_position);
 
@@ -78,6 +87,11 @@ void Unit::render(sf::RenderTarget& target) const
 const sf::Vector2f& Unit::getPosition() const
 {
     return m_position;
+}
+
+UnitFaction Unit::getFaction() const
+{
+    return m_faction;
 }
 
 void Unit::setSelected(bool bSelected)

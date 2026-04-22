@@ -4,15 +4,22 @@
 #include <SFML/Graphics.hpp>
 #include "Command.hpp"
 
+enum class UnitFaction
+{
+    Player,
+    Enemy
+};
+
 class Unit
 {
 public:
-    Unit(sf::Vector2f position, float radius, float moveSpeed);
+    Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction);
 
     void update(float deltaTime);
     void render(sf::RenderTarget& target) const;
 
     [[nodiscard]] const sf::Vector2f& getPosition() const;
+    [[nodiscard]] UnitFaction getFaction() const;
 
     void setSelected(bool bSelected);
     [[nodiscard]] bool isSelected() const;
@@ -26,6 +33,7 @@ private:
     sf::Vector2f m_position;
     float m_radius;
     float m_moveSpeed{ 120.0f };
+    UnitFaction m_faction{ UnitFaction::Player };
 
     bool m_bSelected{ false };
 
