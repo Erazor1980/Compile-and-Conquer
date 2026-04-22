@@ -56,7 +56,7 @@ void Unit::update(float deltaTime)
         const sf::Vector2f toTarget = targetPosition - m_position;
         const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
 
-        const float stopDistance = m_radius + 4.0f; // todo: this should be changed to "shooting distance" in future (or a more advanced logic)
+        const float stopDistance = m_radius + pAttackCommand->m_pTargetUnit->getRadius() + 4.0f;
         const float stopDistanceSquared = stopDistance * stopDistance;
 
         if (distanceSquared <= stopDistanceSquared)
@@ -66,10 +66,12 @@ void Unit::update(float deltaTime)
 
         const float distance = std::sqrt(distanceSquared);
         const float maxStep = m_moveSpeed * deltaTime;
+        const float remainingDistance = distance - stopDistance;
 
-        if (distance <= maxStep)
+        if (remainingDistance <= maxStep)
         {
-            m_position = targetPosition;
+            const sf::Vector2f direction = toTarget / distance;
+            m_position += direction * remainingDistance;
             return;
         }
 
@@ -124,12 +126,30 @@ void Unit::render(sf::RenderTarget& target) const
             target.draw(line, 2, sf::PrimitiveType::Lines);
             target.draw(targetMarker);
         }
+        else if (const AttackCommand* pAttackCommand = std::get_if<AttackCommand>(&m_activeCommand.value()))
+        {
+            if (pAttackCommand->m_pTargetUnit != nullptr)
+            {
+                sf::Vertex line[] =
+                {
+                    sf::Vertex{ m_position, sf::Color::Yellow },
+                    sf::Vertex{ pAttackCommand->m_pTargetUnit->getPosition(), sf::Color::Yellow }
+                };
+
+                target.draw(line, 2, sf::PrimitiveType::Lines);
+            }
+        }
     }
 }
 
 const sf::Vector2f& Unit::getPosition() const
 {
     return m_position;
+}
+
+float Unit::getRadius() const
+{
+    return m_radius;
 }
 
 UnitFaction Unit::getFaction() const

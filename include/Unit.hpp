@@ -19,6 +19,7 @@ public:
     void render(sf::RenderTarget& target) const;
 
     [[nodiscard]] const sf::Vector2f& getPosition() const;
+    [[nodiscard]] float getRadius() const;
     [[nodiscard]] UnitFaction getFaction() const;
 
     void setSelected(bool bSelected);
