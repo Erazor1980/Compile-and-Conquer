@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <SFML/Graphics/Font.hpp>
 #include "Unit.hpp"
 
 class World
@@ -32,5 +33,7 @@ private:
     Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition);
     const Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition) const;
 
+private:
     std::vector<std::unique_ptr<Unit>> m_vUnits;
+    sf::Font m_debugFont;
 };

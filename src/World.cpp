@@ -1,10 +1,18 @@
+#include <algorithm>
 #include <cmath>
 #include <memory>
+#include <stdexcept>
+#include <string>
 
 #include "World.hpp"
 
 World::World()
 {
+    if (!m_debugFont.openFromFile("assets/arial.ttf"))
+    {
+        throw std::runtime_error("Failed to load debug font: assets/arial.ttf");
+    }
+
     // adding some player test units
     m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 100.0f, 100.0f }, 12.0f, 120.0f, UnitFaction::Player));
     m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 200.0f, 180.0f }, 12.0f, 80.0f, UnitFaction::Player));
@@ -33,6 +41,17 @@ void World::update(float deltaTime)
     {
         pUnit->update(deltaTime);
     }
+
+    // removing dead units
+    m_vUnits.erase(
+        std::remove_if(
+            m_vUnits.begin(),
+            m_vUnits.end(),
+            [](const std::unique_ptr<Unit>& pUnit)
+            {
+                return !pUnit->isAlive();
+            }),
+        m_vUnits.end());
 }
 
 void World::render(sf::RenderTarget& target) const
@@ -40,6 +59,15 @@ void World::render(sf::RenderTarget& target) const
     for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
         pUnit->render(target);
+
+        sf::Text hitPointText(m_debugFont);
+        hitPointText.setCharacterSize(12);
+        hitPointText.setFillColor(sf::Color::White);
+        hitPointText.setString(std::to_string(static_cast<int>(pUnit->getHitPoints())));
+        hitPointText.setPosition(pUnit->getPosition() + sf::Vector2f{ 16.0f, -18.0f });
+
+
+        target.draw(hitPointText);
     }
 }
 
