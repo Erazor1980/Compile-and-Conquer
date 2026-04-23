@@ -44,6 +44,7 @@ private:
 
     float m_hitPoints{ 100.0f };
     float m_attackDamagePerSecond{ 40.0f };
+    float m_attackRange{ 60.0f };
 
     bool m_bSelected{ false };
 

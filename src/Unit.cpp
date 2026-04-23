@@ -62,10 +62,9 @@ void Unit::update(float deltaTime)
         const sf::Vector2f toTarget = targetPosition - m_position;
         const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
 
-        const float stopDistance = m_radius + pAttackCommand->m_pTargetUnit->getRadius() + 4.0f;
-        const float stopDistanceSquared = stopDistance * stopDistance;
+        const float attackRangeSquared = m_attackRange * m_attackRange;
 
-        if (distanceSquared <= stopDistanceSquared)
+        if (distanceSquared <= attackRangeSquared)
         {
             pAttackCommand->m_pTargetUnit->applyDamage(m_attackDamagePerSecond * deltaTime);
 
@@ -79,12 +78,10 @@ void Unit::update(float deltaTime)
 
         const float distance = std::sqrt(distanceSquared);
         const float maxStep = m_moveSpeed * deltaTime;
-        const float remainingDistance = distance - stopDistance;
 
-        if (remainingDistance <= maxStep)
+        if (distance <= maxStep)
         {
-            const sf::Vector2f direction = toTarget / distance;
-            m_position += direction * remainingDistance;
+            m_position = targetPosition;
             return;
         }
 
