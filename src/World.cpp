@@ -18,7 +18,7 @@ World::World()
     const UnitStats heavyStats{
         180.0f,
         30.0f,
-        70.0f,
+        170.0f,
         0.8f
     };
 
@@ -109,6 +109,15 @@ void World::render(sf::RenderTarget& target) const
             text.setPosition(pUnit->getPosition() + sf::Vector2f{ 16.0f, -18.0f });
 
 			target.draw(text);
+
+            const float attackRange = pUnit->getAttackRange();
+            sf::CircleShape rangeCircle(attackRange);
+            rangeCircle.setOrigin({ attackRange, attackRange });
+            rangeCircle.setPosition(pUnit->getPosition());            
+            rangeCircle.setFillColor(sf::Color::Transparent);
+            rangeCircle.setOutlineColor(sf::Color::Blue);
+            rangeCircle.setOutlineThickness(1.5f);
+            target.draw(rangeCircle);
 		}
 	}
 

@@ -206,6 +206,11 @@ float Unit::getHitPoints() const
     return m_hitPoints;
 }
 
+float Unit::getAttackRange() const
+{
+    return m_stats.attackRange;
+}
+
 bool Unit::isAlive() const
 {
     return m_hitPoints > 0.0f;

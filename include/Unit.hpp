@@ -30,6 +30,7 @@ public:
     [[nodiscard]] float getRadius() const;
     [[nodiscard]] UnitFaction getFaction() const;
     [[nodiscard]] float getHitPoints() const;
+    [[nodiscard]] float getAttackRange() const;
     [[nodiscard]] bool isAlive() const;
 
     void setSelected(bool bSelected);
