@@ -1,7 +1,7 @@
 #include "Game.hpp"
 
 Game::Game()
-    : m_window(sf::VideoMode({ 1280u, 720u }), "Compile and Conquer")
+    : m_window(sf::VideoMode({ 1280u, 1024u }), "Compile and Conquer")
 {
     m_window.setFramerateLimit(60);
 }
@@ -35,6 +35,10 @@ void Game::processEvents()
             if (pKeyPressed->code == sf::Keyboard::Key::S)
             {
                 m_world.stopSelectedUnits();
+            }
+            if (pKeyPressed->code == sf::Keyboard::Key::D)
+            {
+                m_world.toggleDebugMode();
             }
         }
         // unit selection (including box)

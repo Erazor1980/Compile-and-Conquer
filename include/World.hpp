@@ -35,5 +35,11 @@ private:
 
 private:
     std::vector<std::unique_ptr<Unit>> m_vUnits;
+
+    // debug stuff
+public:
+    void toggleDebugMode();
+private:
+    bool m_bDebugInfo{ true };
     sf::Font m_debugFont;
 };

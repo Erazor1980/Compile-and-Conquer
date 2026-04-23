@@ -51,23 +51,46 @@ void World::update(float deltaTime)
             {
                 return !pUnit->isAlive();
             }),
-        m_vUnits.end());
+		m_vUnits.end());
 }
 
 void World::render(sf::RenderTarget& target) const
 {
-    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
+    sf::Text text(m_debugFont);
+    if (m_bDebugInfo)
     {
-        pUnit->render(target);
+        text.setCharacterSize(12);
+        text.setFillColor(sf::Color::White);
+    }
 
-        sf::Text hitPointText(m_debugFont);
-        hitPointText.setCharacterSize(12);
-        hitPointText.setFillColor(sf::Color::White);
-        hitPointText.setString(std::to_string(static_cast<int>(pUnit->getHitPoints())));
-        hitPointText.setPosition(pUnit->getPosition() + sf::Vector2f{ 16.0f, -18.0f });
+	for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
+	{
+		pUnit->render(target);
 
+		if (m_bDebugInfo)
+		{   
+            text.setString(std::to_string(static_cast<int>(pUnit->getHitPoints())));
+            text.setPosition(pUnit->getPosition() + sf::Vector2f{ 16.0f, -18.0f });
 
-        target.draw(hitPointText);
+			target.draw(text);
+		}
+	}
+
+    if (m_bDebugInfo)
+    {        
+        auto enemyCount = std::count_if(
+            m_vUnits.begin(),
+            m_vUnits.end(),
+            [](const std::unique_ptr<Unit>& u)
+            {
+                return u->getFaction() == UnitFaction::Enemy;
+            }
+        );
+
+        text.setString("Number units: " + std::to_string(static_cast<int>(m_vUnits.size())) + " (enemies: " + std::to_string(enemyCount) + ")");
+        text.setPosition(sf::Vector2f{ 16.0f, 18.0f });
+
+        target.draw(text);
     }
 }
 
@@ -281,4 +304,9 @@ const Unit* World::findPlayerUnitAt(const sf::Vector2f& worldPosition) const
     }
 
     return pUnit;
+}
+
+void World::toggleDebugMode()
+{
+    m_bDebugInfo = !m_bDebugInfo;
 }
