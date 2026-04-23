@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include "Unit.hpp"
 
@@ -31,5 +32,5 @@ private:
     Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition);
     const Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition) const;
 
-    std::vector<Unit> m_vUnits;
+    std::vector<std::unique_ptr<Unit>> m_vUnits;
 };

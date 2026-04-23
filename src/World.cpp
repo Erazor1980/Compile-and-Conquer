@@ -1,24 +1,25 @@
 #include <cmath>
+#include <memory>
 
 #include "World.hpp"
 
 World::World()
 {
     // adding some player test units
-    m_vUnits.emplace_back(sf::Vector2f{ 100.0f, 100.0f }, 12.0f, 120.0f, UnitFaction::Player);
-    m_vUnits.emplace_back(sf::Vector2f{ 200.0f, 180.0f }, 12.0f, 80.0f, UnitFaction::Player);
-    m_vUnits.emplace_back(sf::Vector2f{ 320.0f, 260.0f }, 12.0f, 40.0f, UnitFaction::Player);
-    m_vUnits.emplace_back(sf::Vector2f{ 500.0f, 700.0f }, 12.0f, 120.0f, UnitFaction::Player);
-    m_vUnits.emplace_back(sf::Vector2f{ 600.0f, 400.0f }, 12.0f, 120.0f, UnitFaction::Player);
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 100.0f, 100.0f }, 12.0f, 120.0f, UnitFaction::Player));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 200.0f, 180.0f }, 12.0f, 80.0f, UnitFaction::Player));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 320.0f, 260.0f }, 12.0f, 40.0f, UnitFaction::Player));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 500.0f, 700.0f }, 12.0f, 120.0f, UnitFaction::Player));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 600.0f, 400.0f }, 12.0f, 120.0f, UnitFaction::Player));
 
     // adding some enemy test units
-    m_vUnits.emplace_back(sf::Vector2f{ 800.0f, 300.0f }, 12.0f, 120.0f, UnitFaction::Enemy);
-    m_vUnits.emplace_back(sf::Vector2f{ 800.0f, 600.0f }, 12.0f, 120.0f, UnitFaction::Enemy);
-    m_vUnits.emplace_back(sf::Vector2f{ 800.0f, 740.0f }, 12.0f, 120.0f, UnitFaction::Enemy);
-    m_vUnits.emplace_back(sf::Vector2f{ 840.0f, 360.0f }, 12.0f, 120.0f, UnitFaction::Enemy);
-    m_vUnits.emplace_back(sf::Vector2f{ 1000.0f, 460.0f }, 12.0f, 120.0f, UnitFaction::Enemy);
-    m_vUnits.emplace_back(sf::Vector2f{ 1000.0f, 760.0f }, 12.0f, 120.0f, UnitFaction::Enemy);
-    m_vUnits.emplace_back(sf::Vector2f{ 1000.0f, 260.0f }, 12.0f, 120.0f, UnitFaction::Enemy);
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 300.0f }, 12.0f, 120.0f, UnitFaction::Enemy));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 600.0f }, 12.0f, 120.0f, UnitFaction::Enemy));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 740.0f }, 12.0f, 120.0f, UnitFaction::Enemy));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 840.0f, 360.0f }, 12.0f, 120.0f, UnitFaction::Enemy));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 460.0f }, 12.0f, 120.0f, UnitFaction::Enemy));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 760.0f }, 12.0f, 120.0f, UnitFaction::Enemy));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 260.0f }, 12.0f, 120.0f, UnitFaction::Enemy));
 }
 
 void World::update(float deltaTime)
@@ -28,25 +29,25 @@ void World::update(float deltaTime)
         return;
     }
 
-    for (Unit& unit : m_vUnits)
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        unit.update(deltaTime);
+        pUnit->update(deltaTime);
     }
 }
 
 void World::render(sf::RenderTarget& target) const
 {
-    for (const Unit& unit : m_vUnits)
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        unit.render(target);
+        pUnit->render(target);
     }
 }
 
 void World::clearSelection()
 {
-    for (Unit& unit : m_vUnits)
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        unit.setSelected(false);
+        pUnit->setSelected(false);
     }
 }
 
@@ -74,22 +75,22 @@ void World::selectUnitsInRect(const sf::FloatRect& rect)
 {
     clearSelection();
 
-    for (Unit& unit : m_vUnits)
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        if (unit.getFaction() == UnitFaction::Player && rect.contains(unit.getPosition()))
+        if (pUnit->getFaction() == UnitFaction::Player && rect.contains(pUnit->getPosition()))
         {
-            unit.setSelected(true);
+            pUnit->setSelected(true);
         }
     }
 }
 
 void World::toggleUnitsInRect(const sf::FloatRect& rect)
 {
-    for (Unit& unit : m_vUnits)
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        if (unit.getFaction() == UnitFaction::Player && rect.contains(unit.getPosition()))
+        if (pUnit->getFaction() == UnitFaction::Player && rect.contains(pUnit->getPosition()))
         {
-            unit.setSelected(!unit.isSelected());
+            pUnit->setSelected(!pUnit->isSelected());
         }
     }
 }
@@ -100,11 +101,11 @@ void World::handleRightClick(const sf::Vector2f& worldPosition)
 
     if (pTargetUnit != nullptr)
     {
-        for (Unit& unit : m_vUnits)
+        for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
         {
-            if (unit.isSelected() && unit.getFaction() == UnitFaction::Player)
+            if (pUnit->isSelected() && pUnit->getFaction() == UnitFaction::Player)
             {
-                unit.issueAttackCommand(pTargetUnit);
+                pUnit->issueAttackCommand(pTargetUnit);
             }
         }
 
@@ -118,9 +119,9 @@ void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
 {
     std::size_t selectedCount = 0;
 
-    for (const Unit& unit : m_vUnits)
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        if (unit.isSelected())
+        if (pUnit->isSelected())
         {
             ++selectedCount;
         }
@@ -136,9 +137,9 @@ void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
 
     std::size_t selectedIndex = 0;
 
-    for (Unit& unit : m_vUnits)
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        if (unit.isSelected())
+        if (pUnit->isSelected())
         {
             const std::size_t row = selectedIndex / columns;
             const std::size_t column = selectedIndex % columns;
@@ -146,7 +147,7 @@ void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
             const float offsetX = (static_cast<float>(column) - (static_cast<float>(columns) - 1.0f) * 0.5f) * spacing;
             const float offsetY = static_cast<float>(row) * spacing;
 
-            unit.issueMoveCommand(targetPosition + sf::Vector2f{offsetX, offsetY});
+            pUnit->issueMoveCommand(targetPosition + sf::Vector2f{offsetX, offsetY});
             ++selectedIndex;
         }
     }    
@@ -155,11 +156,11 @@ void World::moveSelectedUnitsTo(const sf::Vector2f& targetPosition)
 
 void World::stopSelectedUnits()
 {
-    for (Unit& unit : m_vUnits)
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        if (unit.isSelected())
+        if (pUnit->isSelected())
         {
-            unit.clearCommand();
+            pUnit->clearCommand();
         }
     }
 }
@@ -168,9 +169,9 @@ Unit* World::findUnitAt(const sf::Vector2f& worldPosition)
 {
     for (auto it = m_vUnits.rbegin(); it != m_vUnits.rend(); ++it)
     {
-        if (it->contains(worldPosition))
+        if ((*it)->contains(worldPosition))
         {
-            return &(*it);
+            return it->get();
         }
     }
 
@@ -181,9 +182,9 @@ const Unit* World::findUnitAt(const sf::Vector2f& worldPosition) const
 {
     for (auto it = m_vUnits.rbegin(); it != m_vUnits.rend(); ++it)
     {
-        if (it->contains(worldPosition))
+        if ((*it)->contains(worldPosition))
         {
-            return &(*it);
+            return it->get();
         }
     }
 
