@@ -49,6 +49,9 @@ private:
     float m_attackInterval{ 0.5f };         // time between 2 attacks in seconds
     float m_timeSinceLastAttack{ 0.0f };    // time since last attack in seconds
 
+    float m_hitEffectDuration{ 0.12f };
+    float m_hitEffectTimeRemaining{ 0.0f };
+
     bool m_bSelected{ false };
 
     std::optional<Command> m_activeCommand;

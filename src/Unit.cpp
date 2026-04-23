@@ -10,6 +10,16 @@ Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction fac
 
 void Unit::update(float deltaTime)
 {
+    if (m_hitEffectTimeRemaining > 0.0f)
+    {
+        m_hitEffectTimeRemaining -= deltaTime;
+
+        if (m_hitEffectTimeRemaining < 0.0f)
+        {
+            m_hitEffectTimeRemaining = 0.0f;
+        }
+    }
+
     if (!m_activeCommand.has_value())
     {
         return;
@@ -126,6 +136,20 @@ void Unit::render(sf::RenderTarget& target) const
 
     target.draw(shape);
 
+    if (m_hitEffectTimeRemaining > 0.0f)
+    {
+        const float normalizedTime = m_hitEffectTimeRemaining / m_hitEffectDuration;
+
+        sf::CircleShape hitEffect(m_radius + 5.0f);
+        hitEffect.setOrigin({ m_radius + 5.0f, m_radius + 5.0f });
+        hitEffect.setPosition(m_position);
+        hitEffect.setFillColor(sf::Color::Transparent);
+        hitEffect.setOutlineThickness(2.0f);
+        hitEffect.setOutlineColor(sf::Color(255, 255, 255, static_cast<std::uint8_t>(180.0f * normalizedTime)));
+
+        target.draw(hitEffect);
+    }
+
     if (m_bSelected && m_activeCommand.has_value())
     {
         if (const MoveCommand* pMoveCommand = std::get_if<MoveCommand>(&m_activeCommand.value()))
@@ -216,6 +240,8 @@ void Unit::applyDamage(float damage)
     {
         return;
     }
+
+    m_hitEffectTimeRemaining = m_hitEffectDuration;
 
     m_hitPoints -= damage;
 
