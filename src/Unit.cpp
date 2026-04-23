@@ -237,6 +237,30 @@ void Unit::clearCommand()
     m_activeCommand.reset();
 }
 
+void Unit::clearAttackCommandIfTarget(const Unit* pTargetUnit)
+{
+    if (pTargetUnit == nullptr)
+    {
+        return;
+    }
+
+    if (!m_activeCommand.has_value())
+    {
+        return;
+    }
+
+    AttackCommand* pAttackCommand = std::get_if<AttackCommand>(&m_activeCommand.value());
+    if (pAttackCommand == nullptr)
+    {
+        return;
+    }
+
+    if (pAttackCommand->m_pTargetUnit == pTargetUnit)
+    {
+        m_activeCommand.reset();
+    }
+}
+
 bool Unit::hasActiveCommand() const
 {
     return m_activeCommand.has_value();

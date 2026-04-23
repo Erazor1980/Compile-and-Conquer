@@ -33,6 +33,7 @@ public:
     void issueMoveCommand(const sf::Vector2f& targetPosition);
     void issueAttackCommand(Unit* pTargetUnit);
     void clearCommand();
+    void clearAttackCommandIfTarget(const Unit* pTargetUnit);
 
     [[nodiscard]] bool hasActiveCommand() const;
 

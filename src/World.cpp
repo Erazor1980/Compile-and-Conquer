@@ -42,6 +42,26 @@ void World::update(float deltaTime)
         pUnit->update(deltaTime);
     }
 
+    // cleanup attack commands that reference units which will be removed (avoid dangling pointers)
+    std::vector<const Unit*> vDeadUnits;
+    vDeadUnits.reserve(m_vUnits.size());
+
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
+    {
+        if (!pUnit->isAlive())
+        {
+            vDeadUnits.push_back(pUnit.get());
+        }
+    }
+
+    for (const Unit* pDeadUnit : vDeadUnits)
+    {
+        for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
+        {
+            pUnit->clearAttackCommandIfTarget(pDeadUnit);
+        }
+    }
+
     // removing dead units
     m_vUnits.erase(
         std::remove_if(
@@ -51,7 +71,7 @@ void World::update(float deltaTime)
             {
                 return !pUnit->isAlive();
             }),
-		m_vUnits.end());
+        m_vUnits.end());
 }
 
 void World::render(sf::RenderTarget& target) const
