@@ -44,8 +44,10 @@ private:
     UnitFaction m_faction{ UnitFaction::Player };
 
     float m_hitPoints{ 100.0f };
-    float m_attackDamagePerSecond{ 40.0f };
-    float m_attackRange{ 60.0f };
+    float m_attackDamagePerSecond{ 40.0f }; // dps
+    float m_attackRange{ 60.0f };           // in pixels
+    float m_attackInterval{ 0.5f };         // time between 2 attacks in seconds
+    float m_timeSinceLastAttack{ 0.0f };    // time since last attack in seconds
 
     bool m_bSelected{ false };
 

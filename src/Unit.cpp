@@ -15,6 +15,8 @@ void Unit::update(float deltaTime)
         return;
     }
 
+    m_timeSinceLastAttack += deltaTime;
+
     // move command
     if (MoveCommand* pMoveCommand = std::get_if<MoveCommand>(&m_activeCommand.value()))
     {
@@ -66,11 +68,17 @@ void Unit::update(float deltaTime)
 
         if (distanceSquared <= attackRangeSquared)
         {
-            pAttackCommand->m_pTargetUnit->applyDamage(m_attackDamagePerSecond * deltaTime);
-
-            if (!pAttackCommand->m_pTargetUnit->isAlive())
+            if (m_timeSinceLastAttack >= m_attackInterval)
             {
-                m_activeCommand.reset();
+                const float damage = m_attackDamagePerSecond * m_attackInterval;
+                pAttackCommand->m_pTargetUnit->applyDamage(damage);
+
+                m_timeSinceLastAttack = 0.0f;
+
+                if (!pAttackCommand->m_pTargetUnit->isAlive())
+                {
+                    m_activeCommand.reset();
+                }
             }
 
             return;
