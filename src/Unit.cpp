@@ -1,10 +1,12 @@
 #include "Unit.hpp"
 
-Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction)
+Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats)
     : m_position(position)
     , m_radius(radius)
     , m_moveSpeed(moveSpeed)
     , m_faction(faction)
+    , m_stats(stats)
+    , m_hitPoints(stats.maxHitPoints)
 {
 }
 
@@ -74,13 +76,13 @@ void Unit::update(float deltaTime)
         const sf::Vector2f toTarget = targetPosition - m_position;
         const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
 
-        const float attackRangeSquared = m_attackRange * m_attackRange;
+        const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
 
         if (distanceSquared <= attackRangeSquared)
         {
-            if (m_timeSinceLastAttack >= m_attackInterval)
+            if (m_timeSinceLastAttack >= m_stats.attackInterval)
             {
-                const float damage = m_attackDamagePerSecond * m_attackInterval;
+                const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
                 pAttackCommand->m_pTargetUnit->applyDamage(damage);
 
                 m_timeSinceLastAttack = 0.0f;

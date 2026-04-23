@@ -10,10 +10,18 @@ enum class UnitFaction
     Enemy
 };
 
+struct UnitStats
+{
+    float maxHitPoints{ 200.0f };
+    float attackDamagePerSecond{ 40.0f };
+    float attackRange{ 60.0f };
+    float attackInterval{ 0.5f };
+};
+
 class Unit
 {
 public:
-    Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction);
+    Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats = {});
 
     void update(float deltaTime);
     void render(sf::RenderTarget& target) const;
@@ -43,10 +51,8 @@ private:
     float m_moveSpeed{ 120.0f };
     UnitFaction m_faction{ UnitFaction::Player };
 
-    float m_hitPoints{ 100.0f };
-    float m_attackDamagePerSecond{ 40.0f }; // dps
-    float m_attackRange{ 60.0f };           // in pixels
-    float m_attackInterval{ 0.5f };         // time between 2 attacks in seconds
+    UnitStats m_stats{};
+    float m_hitPoints{ 200.0f };
     float m_timeSinceLastAttack{ 0.0f };    // time since last attack in seconds
 
     float m_hitEffectDuration{ 0.12f };
