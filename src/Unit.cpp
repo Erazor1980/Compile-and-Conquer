@@ -24,7 +24,7 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
     m_timeSinceLastAttack += deltaTime;
 
-    // auto attack new target in ragnge, if no active command
+    // auto attack target in range, if no active command
     if (!m_activeCommand.has_value())
     {
         const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
@@ -51,20 +51,61 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
             if (distanceSquared <= attackRangeSquared)
             {
-                m_activeCommand = AttackCommand{ pUnit.get() };
+                if (m_timeSinceLastAttack >= m_stats.attackInterval)
+                {
+                    const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
+                    pUnit->applyDamage(damage);
+
+                    m_timeSinceLastAttack = 0.0f;
+                }
+
                 break;
             }
         }
 
-        if (!m_activeCommand.has_value())
-        {
-            return;
-        }
+        return;
     }
 
     // move command
     if (MoveCommand* pMoveCommand = std::get_if<MoveCommand>(&m_activeCommand.value()))
     {
+        // attack unit(s) in range (but continue moving)
+        const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
+
+        for (const std::unique_ptr<Unit>& pUnit : vUnits)
+        {
+            if (pUnit.get() == this)
+            {
+                continue;
+            }
+
+            if (!pUnit->isAlive())
+            {
+                continue;
+            }
+
+            if (pUnit->getFaction() == m_faction)
+            {
+                continue;
+            }
+
+            const sf::Vector2f toEnemy = pUnit->getPosition() - m_position;
+            const float enemyDistanceSquared = (toEnemy.x * toEnemy.x) + (toEnemy.y * toEnemy.y);
+
+            if (enemyDistanceSquared <= attackRangeSquared)
+            {
+                if (m_timeSinceLastAttack >= m_stats.attackInterval)
+                {
+                    const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
+                    pUnit->applyDamage(damage);
+
+                    m_timeSinceLastAttack = 0.0f;
+                }
+
+                break;
+            }
+        }
+
         const sf::Vector2f toTarget = pMoveCommand->targetPosition - m_position;
         const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
 
