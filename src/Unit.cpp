@@ -10,7 +10,7 @@ Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction fac
 {
 }
 
-void Unit::update(float deltaTime)
+void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits)
 {
     if (m_hitEffectTimeRemaining > 0.0f)
     {
@@ -22,12 +22,45 @@ void Unit::update(float deltaTime)
         }
     }
 
+    m_timeSinceLastAttack += deltaTime;
+
+    // auto attack new target in ragnge, if no active command
     if (!m_activeCommand.has_value())
     {
-        return;
-    }
+        const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
 
-    m_timeSinceLastAttack += deltaTime;
+        for (const std::unique_ptr<Unit>& pUnit : vUnits)
+        {
+            if (pUnit.get() == this)
+            {
+                continue;
+            }
+
+            if (!pUnit->isAlive())
+            {
+                continue;
+            }
+
+            if (pUnit->getFaction() == m_faction)
+            {
+                continue;
+            }
+
+            const sf::Vector2f toTarget = pUnit->getPosition() - m_position;
+            const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
+
+            if (distanceSquared <= attackRangeSquared)
+            {
+                m_activeCommand = AttackCommand{ pUnit.get() };
+                break;
+            }
+        }
+
+        if (!m_activeCommand.has_value())
+        {
+            return;
+        }
+    }
 
     // move command
     if (MoveCommand* pMoveCommand = std::get_if<MoveCommand>(&m_activeCommand.value()))

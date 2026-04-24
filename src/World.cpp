@@ -55,7 +55,7 @@ void World::update(float deltaTime)
 
     for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        pUnit->update(deltaTime);
+        pUnit->update(deltaTime, m_vUnits);
     }
 
     // cleanup attack commands that reference units which will be removed (avoid dangling pointers)
