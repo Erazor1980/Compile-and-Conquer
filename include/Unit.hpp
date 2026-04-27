@@ -60,6 +60,7 @@ private:
     void renderTank(sf::RenderTarget& target) const;
     void renderAircraft(sf::RenderTarget& target) const;
     void updateFacingDirection(const sf::Vector2f& direction);
+    void updateBarrelDirection(const sf::Vector2f& direction);  // todo: it will be only in the tank class, when we separate unit into derived classes
 
     sf::Vector2f m_position;
     float m_radius;
@@ -67,6 +68,7 @@ private:
     UnitType m_type{ UnitType::Soldier };
     UnitFaction m_faction{ UnitFaction::Player };
     float m_facingAngleDegrees{ 0.0f };
+    float m_barrelAngleDegrees{ 0.0f };
 
     UnitStats m_stats{};
     float m_hitPoints{ 200.0f };

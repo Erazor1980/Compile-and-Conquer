@@ -54,6 +54,11 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
             if (distanceSquared <= attackRangeSquared)
             {
+                if (distanceSquared > 0.0001f)
+                {
+                    updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
+                }
+
                 if (m_timeSinceLastAttack >= m_stats.attackInterval)
                 {
                     const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
@@ -97,6 +102,11 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
             if (enemyDistanceSquared <= attackRangeSquared)
             {
+                if (enemyDistanceSquared > 0.0001f)
+                {
+                    updateBarrelDirection(toEnemy / std::sqrt(enemyDistanceSquared));
+                }
+
                 if (m_timeSinceLastAttack >= m_stats.attackInterval)
                 {
                     const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
@@ -156,11 +166,16 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
         const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
 
+        if (distanceSquared > 0.0001f)
+        {
+            updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
+        }
+
         if (distanceSquared <= attackRangeSquared)
         {
             if (distanceSquared > 0.0001f)
             {
-                updateFacingDirection(toTarget / std::sqrt(distanceSquared));
+                updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
             }
 
             if (m_timeSinceLastAttack >= m_stats.attackInterval)
@@ -269,6 +284,16 @@ void Unit::updateFacingDirection(const sf::Vector2f& direction)
     m_facingAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
 }
 
+void Unit::updateBarrelDirection(const sf::Vector2f& direction)
+{
+    if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)
+    {
+        return;
+    }
+
+    m_barrelAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
+}
+
 void Unit::renderSoldier(sf::RenderTarget& target) const
 {
     sf::CircleShape shape(m_radius);
@@ -321,7 +346,7 @@ void Unit::renderTank(sf::RenderTarget& target) const
     sf::RectangleShape barrel({ barrelLength, barrelThickness });
     barrel.setOrigin({ 0.0f, barrelThickness * 0.5f });
     barrel.setPosition(m_position);
-    barrel.setRotation(sf::degrees(m_facingAngleDegrees));
+    barrel.setRotation(sf::degrees(m_barrelAngleDegrees));
     barrel.setFillColor(barrelColor);
 
     target.draw(barrel);
