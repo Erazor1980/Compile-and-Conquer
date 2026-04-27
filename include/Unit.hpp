@@ -59,12 +59,14 @@ private:
     void renderSoldier(sf::RenderTarget& target) const;
     void renderTank(sf::RenderTarget& target) const;
     void renderAircraft(sf::RenderTarget& target) const;
+    void updateFacingDirection(const sf::Vector2f& direction);
 
     sf::Vector2f m_position;
     float m_radius;
     float m_moveSpeed{ 120.0f };
     UnitType m_type{ UnitType::Soldier };
     UnitFaction m_faction{ UnitFaction::Player };
+    float m_facingAngleDegrees{ 0.0f };
 
     UnitStats m_stats{};
     float m_hitPoints{ 200.0f };

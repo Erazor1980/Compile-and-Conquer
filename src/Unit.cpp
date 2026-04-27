@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "Unit.hpp"
 
 Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, UnitType type, const UnitStats& stats)
@@ -128,6 +130,7 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
         }
 
         const sf::Vector2f direction = toTarget / distance;
+        updateFacingDirection(direction);
         m_position += direction * maxStep;
         return;
     }
@@ -155,6 +158,11 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
         if (distanceSquared <= attackRangeSquared)
         {
+            if (distanceSquared > 0.0001f)
+            {
+                updateFacingDirection(toTarget / std::sqrt(distanceSquared));
+            }
+
             if (m_timeSinceLastAttack >= m_stats.attackInterval)
             {
                 const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
@@ -181,6 +189,7 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
         }
 
         const sf::Vector2f direction = toTarget / distance;
+        updateFacingDirection(direction);
         m_position += direction * maxStep;
         return;
     }
@@ -250,6 +259,15 @@ void Unit::render(sf::RenderTarget& target) const
     }
 }
 
+void Unit::updateFacingDirection(const sf::Vector2f& direction)
+{
+    if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)
+    {
+        return;
+    }
+
+    m_facingAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
+}
 
 void Unit::renderSoldier(sf::RenderTarget& target) const
 {
@@ -275,6 +293,7 @@ void Unit::renderTank(sf::RenderTarget& target) const
     sf::RectangleShape body({ tankLength, tankHeight });
     body.setOrigin({ tankLength * 0.5f, tankHeight * 0.5f });
     body.setPosition(m_position);
+    body.setRotation(sf::degrees(m_facingAngleDegrees));
     body.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
 
     if (m_bSelected)
@@ -302,6 +321,7 @@ void Unit::renderTank(sf::RenderTarget& target) const
     sf::RectangleShape barrel({ barrelLength, barrelThickness });
     barrel.setOrigin({ 0.0f, barrelThickness * 0.5f });
     barrel.setPosition(m_position);
+    barrel.setRotation(sf::degrees(m_facingAngleDegrees));
     barrel.setFillColor(barrelColor);
 
     target.draw(barrel);
@@ -321,11 +341,12 @@ void Unit::renderAircraft(sf::RenderTarget& target) const
 {
     sf::ConvexShape shape;
     shape.setPointCount(3);
-    shape.setPoint(0, { m_radius * 1.4f, 0.0f });
-    shape.setPoint(1, { 0.0f, m_radius * 2.4f });
-    shape.setPoint(2, { m_radius * 2.8f, m_radius * 2.4f });
-    shape.setOrigin({ m_radius * 1.4f, m_radius * 1.2f });
+    shape.setPoint(0, { m_radius * 2.4f, m_radius * 1.2f });
+    shape.setPoint(1, { 0.0f, 0.0f });
+    shape.setPoint(2, { 0.0f, m_radius * 2.4f });
+    shape.setOrigin({ m_radius * 1.2f, m_radius * 1.2f });
     shape.setPosition(m_position);
+    shape.setRotation(sf::degrees(m_facingAngleDegrees));
     shape.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
 
     if (m_bSelected)
