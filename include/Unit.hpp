@@ -12,6 +12,13 @@ enum class UnitFaction
     Enemy
 };
 
+enum class UnitType
+{
+    Soldier,
+    Tank,
+    Aircraft
+};
+
 struct UnitStats
 {
     float maxHitPoints{ 200.0f };
@@ -23,7 +30,7 @@ struct UnitStats
 class Unit
 {
 public:
-    Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats = {});
+    Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, UnitType type, const UnitStats& stats = {});
 
     void update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits);
     void render(sf::RenderTarget& target) const;
@@ -49,9 +56,14 @@ public:
     [[nodiscard]] bool hasActiveCommand() const;
 
 private:
+    void renderSoldier(sf::RenderTarget& target) const;
+    void renderTank(sf::RenderTarget& target) const;
+    void renderAircraft(sf::RenderTarget& target) const;
+
     sf::Vector2f m_position;
     float m_radius;
     float m_moveSpeed{ 120.0f };
+    UnitType m_type{ UnitType::Soldier };
     UnitFaction m_faction{ UnitFaction::Player };
 
     UnitStats m_stats{};

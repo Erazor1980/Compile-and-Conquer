@@ -30,20 +30,20 @@ World::World()
     };
 
     // adding some player test units
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 100.0f, 100.0f }, 12.0f, 120.0f, UnitFaction::Player, defaultStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 200.0f, 180.0f }, 12.0f, 80.0f, UnitFaction::Player, heavyStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 320.0f, 260.0f }, 12.0f, 140.0f, UnitFaction::Player, fastAttackStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 500.0f, 700.0f }, 12.0f, 120.0f, UnitFaction::Player, defaultStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 600.0f, 400.0f }, 12.0f, 120.0f, UnitFaction::Player, defaultStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 100.0f, 100.0f }, 12.0f, 120.0f, UnitFaction::Player, UnitType::Soldier, defaultStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 200.0f, 180.0f }, 12.0f, 80.0f, UnitFaction::Player, UnitType::Tank, heavyStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 320.0f, 260.0f }, 12.0f, 140.0f, UnitFaction::Player, UnitType::Aircraft, fastAttackStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 500.0f, 700.0f }, 12.0f, 120.0f, UnitFaction::Player, UnitType::Soldier, defaultStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 600.0f, 400.0f }, 12.0f, 120.0f, UnitFaction::Player, UnitType::Soldier, defaultStats));
 
     // adding some enemy test units
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 300.0f }, 12.0f, 120.0f, UnitFaction::Enemy, defaultStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 600.0f }, 12.0f, 120.0f, UnitFaction::Enemy, heavyStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 740.0f }, 12.0f, 120.0f, UnitFaction::Enemy, defaultStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 840.0f, 360.0f }, 12.0f, 140.0f, UnitFaction::Enemy, fastAttackStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 460.0f }, 12.0f, 120.0f, UnitFaction::Enemy, defaultStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 760.0f }, 12.0f, 120.0f, UnitFaction::Enemy, heavyStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 260.0f }, 12.0f, 140.0f, UnitFaction::Enemy, fastAttackStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 300.0f }, 12.0f, 120.0f, UnitFaction::Enemy, UnitType::Soldier, defaultStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 600.0f }, 12.0f, 120.0f, UnitFaction::Enemy, UnitType::Tank, heavyStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 740.0f }, 12.0f, 120.0f, UnitFaction::Enemy, UnitType::Soldier, defaultStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 840.0f, 360.0f }, 12.0f, 140.0f, UnitFaction::Enemy, UnitType::Aircraft, fastAttackStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 460.0f }, 12.0f, 120.0f, UnitFaction::Enemy, UnitType::Soldier, defaultStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 760.0f }, 12.0f, 120.0f, UnitFaction::Enemy, UnitType::Tank, heavyStats));
+    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 260.0f }, 12.0f, 140.0f, UnitFaction::Enemy, UnitType::Aircraft, fastAttackStats));
 }
 
 void World::update(float deltaTime)

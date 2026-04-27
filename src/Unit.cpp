@@ -1,10 +1,11 @@
 #include "Unit.hpp"
 
-Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats)
+Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, UnitType type, const UnitStats& stats)
     : m_position(position)
     , m_radius(radius)
     , m_moveSpeed(moveSpeed)
     , m_faction(faction)
+    , m_type(type)
     , m_stats(stats)
     , m_hitPoints(stats.maxHitPoints)
 {
@@ -187,30 +188,19 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
 void Unit::render(sf::RenderTarget& target) const
 {
-    sf::CircleShape shape(m_radius);
-    if (m_faction == UnitFaction::Player)
+    if (m_type == UnitType::Soldier)
     {
-        shape.setFillColor(sf::Color::Green);
+        renderSoldier(target);
     }
-    else
+    else if (m_type == UnitType::Tank)
     {
-        shape.setFillColor(sf::Color::Red);
+        renderTank(target);
     }
-
-    shape.setOrigin({ m_radius, m_radius });
-    shape.setPosition(m_position);
-
-    if (m_bSelected)
+    else if (m_type == UnitType::Aircraft)
     {
-        shape.setOutlineThickness(2.0f);
-        shape.setOutlineColor(sf::Color::Yellow);
-    }
-    else
-    {
-        shape.setOutlineThickness(0.0f);
+        renderAircraft(target);
     }
 
-    target.draw(shape);
 
     if (m_hitEffectTimeRemaining > 0.0f)
     {
@@ -258,6 +248,93 @@ void Unit::render(sf::RenderTarget& target) const
             }
         }
     }
+}
+
+
+void Unit::renderSoldier(sf::RenderTarget& target) const
+{
+    sf::CircleShape shape(m_radius);
+    shape.setOrigin({ m_radius, m_radius });
+    shape.setPosition(m_position);
+    shape.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
+
+    if (m_bSelected)
+    {
+        shape.setOutlineThickness(2.0f);
+        shape.setOutlineColor(sf::Color::Yellow);
+    }
+
+    target.draw(shape);
+}
+
+void Unit::renderTank(sf::RenderTarget& target) const
+{
+    const float tankLength = m_radius * 2.4f;
+    const float tankHeight = m_radius * 1.6f;
+
+    sf::RectangleShape body({ tankLength, tankHeight });
+    body.setOrigin({ tankLength * 0.5f, tankHeight * 0.5f });
+    body.setPosition(m_position);
+    body.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
+
+    if (m_bSelected)
+    {
+        body.setOutlineThickness(2.0f);
+        body.setOutlineColor(sf::Color::Yellow);
+    }
+
+    target.draw(body);
+
+    // barrel settings
+    const float barrelLength = tankLength * 0.75f;
+    const float barrelThickness = m_radius * 0.3f;
+
+    sf::Color barrelColor;
+    if (m_faction == UnitFaction::Player)
+    {
+        barrelColor = sf::Color(0, 120, 0); // dark green
+    }
+    else
+    {
+        barrelColor = sf::Color(120, 0, 0); // dark red
+    }
+
+    sf::RectangleShape barrel({ barrelLength, barrelThickness });
+    barrel.setOrigin({ 0.0f, barrelThickness * 0.5f });
+    barrel.setPosition(m_position);
+    barrel.setFillColor(barrelColor);
+
+    target.draw(barrel);
+
+    // pivot circle (turret base)
+    const float pivotRadius = m_radius * 0.45f;
+
+    sf::CircleShape pivot(pivotRadius);
+    pivot.setOrigin({ pivotRadius, pivotRadius });
+    pivot.setPosition(m_position);
+    pivot.setFillColor(sf::Color(100, 100, 100));
+
+    target.draw(pivot);
+}
+
+void Unit::renderAircraft(sf::RenderTarget& target) const
+{
+    sf::ConvexShape shape;
+    shape.setPointCount(3);
+    shape.setPoint(0, { m_radius * 1.4f, 0.0f });
+    shape.setPoint(1, { 0.0f, m_radius * 2.4f });
+    shape.setPoint(2, { m_radius * 2.8f, m_radius * 2.4f });
+    shape.setOrigin({ m_radius * 1.4f, m_radius * 1.2f });
+    shape.setPosition(m_position);
+    shape.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
+
+    if (m_bSelected)
+    {
+        shape.setOutlineThickness(2.0f);
+        shape.setOutlineColor(sf::Color::Yellow);
+    }
+
+    target.draw(shape);
 }
 
 const sf::Vector2f& Unit::getPosition() const
