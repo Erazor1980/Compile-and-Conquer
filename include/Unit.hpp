@@ -71,6 +71,7 @@ protected:
     void attack(Unit& target);
     virtual void updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime);
     virtual void resetWeaponDirectionToBody(float deltaTime);
+    virtual bool canAttackTarget(const Unit& target) const;
     
 
     sf::Vector2f m_position;

@@ -193,6 +193,11 @@ Unit* Unit::findEnemyInRange(const std::vector<std::unique_ptr<Unit>>& vUnits) c
 
 void Unit::attack(Unit& target)
 {
+    if (!canAttackTarget(target))
+    {
+        return;
+    }
+
     if (m_timeSinceLastAttack < m_stats.attackInterval)
     {
         return;
@@ -212,6 +217,11 @@ void Unit::updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float del
 void Unit::resetWeaponDirectionToBody(float deltaTime)
 {
     // Default units have no directional weapon (yet)
+}
+
+bool Unit::canAttackTarget(const Unit& target) const
+{
+    return true;
 }
 
 void Unit::render(sf::RenderTarget& target) const

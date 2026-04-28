@@ -11,11 +11,15 @@ protected:
     void renderBody(sf::RenderTarget& target) const override;
     void updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime) override;
     void resetWeaponDirectionToBody(float deltaTime) override;
+    bool canAttackTarget(const Unit& target) const override;
 
 private:
     void rotateBarrelTowards(float targetAngleDegrees, float deltaTime);
     float calculateAngleTo(const sf::Vector2f& targetPosition) const;
 
     float m_barrelAngleDegrees{ 0.0f };
-    float m_barrelTurnSpeedDegreesPerSecond{ 120.0f };
+
+    // constants
+    static constexpr float k_allowedAimErrorDegrees{ 10.0f };
+    static constexpr float k_barrelTurnSpeed{ 100.0f };
 };

@@ -68,10 +68,18 @@ void Tank::resetWeaponDirectionToBody(float deltaTime)
     rotateBarrelTowards(m_facingAngleDegrees, deltaTime);
 }
 
+bool Tank::canAttackTarget(const Unit& target) const
+{
+    const float targetAngleDegrees = calculateAngleTo(target.getPosition());
+    const float angleDifference = std::abs(std::remainder(targetAngleDegrees - m_barrelAngleDegrees, 360.0f));
+
+    return angleDifference <= k_allowedAimErrorDegrees;
+}
+
 void Tank::rotateBarrelTowards(float targetAngleDegrees, float deltaTime)
 {
     const float angleDifference = std::remainder(targetAngleDegrees - m_barrelAngleDegrees, 360.0f);
-    const float maxStep = m_barrelTurnSpeedDegreesPerSecond * deltaTime;
+    const float maxStep = k_barrelTurnSpeed * deltaTime;
 
     if (std::abs(angleDifference) <= maxStep)
     {
