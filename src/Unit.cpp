@@ -206,30 +206,12 @@ void Unit::attack(Unit& target)
 
 void Unit::updateWeaponDirectionTo(const sf::Vector2f& targetPosition)
 {
-    if (m_type != UnitType::Tank)
-    {
-        return;
-    }
-
-    const sf::Vector2f toTarget = targetPosition - m_position;
-    const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
-
-    if (distanceSquared <= 0.0001f)
-    {
-        return;
-    }
-
-    updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
+    // Default units have no directional weapon (yet)
 }
 
 void Unit::resetWeaponDirectionToBody()
 {
-    if (m_type != UnitType::Tank)
-    {
-        return;
-    }
-
-    m_barrelAngleDegrees = m_facingAngleDegrees;
+    // Default units have no directional weapon (yet)
 }
 
 void Unit::render(sf::RenderTarget& target) const
@@ -238,15 +220,10 @@ void Unit::render(sf::RenderTarget& target) const
     {
         renderSoldier(target);
     }
-    else if (m_type == UnitType::Tank)
-    {
-        renderTank(target);
-    }
     else if (m_type == UnitType::Aircraft)
     {
         renderAircraft(target);
     }
-
 
     if (m_hitEffectTimeRemaining > 0.0f)
     {
@@ -306,15 +283,6 @@ void Unit::updateFacingDirection(const sf::Vector2f& direction)
     m_facingAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
 }
 
-void Unit::updateBarrelDirection(const sf::Vector2f& direction)
-{
-    if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)
-    {
-        return;
-    }
-
-    m_barrelAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
-}
 
 void Unit::renderSoldier(sf::RenderTarget& target) const
 {
@@ -330,58 +298,6 @@ void Unit::renderSoldier(sf::RenderTarget& target) const
     }
 
     target.draw(shape);
-}
-
-void Unit::renderTank(sf::RenderTarget& target) const
-{
-    const float tankLength = m_radius * 2.4f;
-    const float tankHeight = m_radius * 1.6f;
-
-    sf::RectangleShape body({ tankLength, tankHeight });
-    body.setOrigin({ tankLength * 0.5f, tankHeight * 0.5f });
-    body.setPosition(m_position);
-    body.setRotation(sf::degrees(m_facingAngleDegrees));
-    body.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
-
-    if (m_bSelected)
-    {
-        body.setOutlineThickness(2.0f);
-        body.setOutlineColor(sf::Color::Yellow);
-    }
-
-    target.draw(body);
-
-    // barrel settings
-    const float barrelLength = tankLength * 0.75f;
-    const float barrelThickness = m_radius * 0.3f;
-
-    sf::Color barrelColor;
-    if (m_faction == UnitFaction::Player)
-    {
-        barrelColor = sf::Color(0, 120, 0); // dark green
-    }
-    else
-    {
-        barrelColor = sf::Color(120, 0, 0); // dark red
-    }
-
-    sf::RectangleShape barrel({ barrelLength, barrelThickness });
-    barrel.setOrigin({ 0.0f, barrelThickness * 0.5f });
-    barrel.setPosition(m_position);
-    barrel.setRotation(sf::degrees(m_barrelAngleDegrees));
-    barrel.setFillColor(barrelColor);
-
-    target.draw(barrel);
-
-    // pivot circle (turret base)
-    const float pivotRadius = m_radius * 0.45f;
-
-    sf::CircleShape pivot(pivotRadius);
-    pivot.setOrigin({ pivotRadius, pivotRadius });
-    pivot.setPosition(m_position);
-    pivot.setFillColor(sf::Color(100, 100, 100));
-
-    target.draw(pivot);
 }
 
 void Unit::renderAircraft(sf::RenderTarget& target) const

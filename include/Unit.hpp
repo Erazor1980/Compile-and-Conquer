@@ -31,9 +31,10 @@ class Unit
 {
 public:
     Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, UnitType type, const UnitStats& stats = {});
+    virtual ~Unit() = default;
 
     void update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits);
-    void render(sf::RenderTarget& target) const;
+    virtual void render(sf::RenderTarget& target) const;
 
     [[nodiscard]] const sf::Vector2f& getPosition() const;
     [[nodiscard]] float getRadius() const;
@@ -55,12 +56,10 @@ public:
 
     [[nodiscard]] bool hasActiveCommand() const;
 
-private:
+protected:
     void renderSoldier(sf::RenderTarget& target) const;
-    void renderTank(sf::RenderTarget& target) const;
     void renderAircraft(sf::RenderTarget& target) const;
     void updateFacingDirection(const sf::Vector2f& direction);
-    void updateBarrelDirection(const sf::Vector2f& direction);  // todo: it will be only in the tank class, when we separate unit into derived classes
 
     void updateHitEffect(float deltaTime);
     void updateAutoAttack(const std::vector<std::unique_ptr<Unit>>& vUnits);
@@ -69,8 +68,8 @@ private:
 
     Unit* findEnemyInRange(const std::vector<std::unique_ptr<Unit>>& vUnits) const;
     void attack(Unit& target);
-    void updateWeaponDirectionTo(const sf::Vector2f& targetPosition);
-    void resetWeaponDirectionToBody(); 
+    virtual void updateWeaponDirectionTo(const sf::Vector2f& targetPosition);
+    virtual void resetWeaponDirectionToBody(); 
     
 
     sf::Vector2f m_position;
@@ -79,7 +78,6 @@ private:
     UnitType m_type{ UnitType::Soldier };
     UnitFaction m_faction{ UnitFaction::Player };
     float m_facingAngleDegrees{ 0.0f };
-    float m_barrelAngleDegrees{ 0.0f };
 
     UnitStats m_stats{};
     float m_hitPoints{ 200.0f };
