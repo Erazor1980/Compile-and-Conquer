@@ -65,7 +65,7 @@ protected:
     void updateHitEffect(float deltaTime);
     void updateAutoAttack(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits);
     void updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, MoveCommand& command);
-    void updateAttackCommand(float deltaTime, AttackCommand& command);
+    void updateAttackCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, AttackCommand& command);
 
     Unit* findEnemyInRange(const std::vector<std::unique_ptr<Unit>>& vUnits) const;
     void attack(Unit& target);

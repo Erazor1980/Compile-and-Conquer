@@ -33,7 +33,7 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
     if (AttackCommand* pAttackCommand = std::get_if<AttackCommand>(&m_activeCommand.value()))
     {
-        updateAttackCommand(deltaTime, *pAttackCommand);
+        updateAttackCommand(deltaTime, vUnits, *pAttackCommand);
         return;
     }
 }
@@ -78,7 +78,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     }
     else
     {
-        resetWeaponDirectionToBody(deltaTime);
+        updateWeaponDirectionTo(command.targetPosition, deltaTime);
     }
 
     const sf::Vector2f toTarget = command.targetPosition - m_position;
@@ -109,7 +109,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     m_position += direction * maxStep;
 }
 
-void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
+void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, AttackCommand& command)
 {
     if (command.m_pTargetUnit == nullptr)
     {
@@ -130,10 +130,9 @@ void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
     const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
     const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
 
-    updateWeaponDirectionTo(targetPosition, deltaTime);
-
     if (distanceSquared <= attackRangeSquared)
     {
+        updateWeaponDirectionTo(targetPosition, deltaTime);
         attack(*command.m_pTargetUnit);
 
         if (!command.m_pTargetUnit->isAlive())
@@ -145,8 +144,23 @@ void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
         return;
     }
 
+    Unit* pEnemy = findEnemyInRange(vUnits);
+
+    if (pEnemy != nullptr)
+    {
+        updateWeaponDirectionTo(pEnemy->getPosition(), deltaTime);
+        attack(*pEnemy);
+    }
+    else
+    {
+        updateWeaponDirectionTo(targetPosition, deltaTime);
+    }
+
     const float distance = std::sqrt(distanceSquared);
     const sf::Vector2f direction = toTarget / distance;
+
+    updateFacingDirection(direction, deltaTime);
+
     const float moveSpeedFactor = calculateMovementSpeedFactor(direction);
     const float maxStep = m_moveSpeed * moveSpeedFactor * deltaTime;
 
@@ -156,7 +170,6 @@ void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
         return;
     }
 
-    updateFacingDirection(direction, deltaTime);
     m_position += direction * maxStep;
 }
 

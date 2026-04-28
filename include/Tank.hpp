@@ -22,7 +22,7 @@ private:
     float m_barrelAngleDegrees{ 0.0f };
 
     // constants
-    static constexpr float k_barrelTurnSpeed{ 130.0f };                  // barrel rotation speed in degrees per second
+    static constexpr float k_barrelTurnSpeed{ 180.0f };                  // barrel rotation speed in degrees per second
     static constexpr float k_bodyTurnSpeedDegreesPerSecond{ 100.0f };    // body rotation speed in degrees per second
     static constexpr float k_allowedAimErrorDegrees{ 10.0f };            // max angle difference to allow shooting
     static constexpr float k_minMoveSpeedFactor{ 0.2f };                 // minimum movement speed factor when misaligned
