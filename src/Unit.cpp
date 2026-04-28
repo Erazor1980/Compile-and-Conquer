@@ -87,6 +87,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     if (distanceSquared <= 0.0001f)
     {
         m_position = command.targetPosition;
+        m_currentSpeed = 0.0f;
         m_activeCommand.reset();
         resetWeaponDirectionToBody(deltaTime);
         return;
@@ -100,6 +101,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     if (distance <= maxStep)
     {
         m_position = command.targetPosition;
+        m_currentSpeed = 0.0f;
         m_activeCommand.reset();
         resetWeaponDirectionToBody(deltaTime);
         return;
@@ -133,6 +135,7 @@ void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_pt
 
     if (distanceSquared <= attackRangeSquared)
     {
+        m_currentSpeed = 0.0f;
         updateWeaponDirectionTo(targetPosition, deltaTime);
         attack(*command.m_pTargetUnit);
 
@@ -168,6 +171,7 @@ void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_pt
     if (distance <= maxStep)
     {
         m_position = targetPosition;
+        m_currentSpeed = 0.0f;
         return;
     }
 
@@ -270,12 +274,12 @@ void Unit::render(sf::RenderTarget& target) const
         {
             sf::Vertex line[] =
             {
-                sf::Vertex{ m_position, sf::Color::Red },
-                sf::Vertex{ pMoveCommand->targetPosition, sf::Color::Red }
+                sf::Vertex{ m_position, sf::Color(125, 125, 125) },
+                sf::Vertex{ pMoveCommand->targetPosition, sf::Color(125, 125, 125) }
             };
 
             sf::CircleShape targetMarker(4.0f);
-            targetMarker.setFillColor(sf::Color::Red);
+            targetMarker.setFillColor(sf::Color(125, 125, 125));
             targetMarker.setOrigin({ 4.0f, 4.0f });
             targetMarker.setPosition(pMoveCommand->targetPosition);
 
@@ -288,8 +292,8 @@ void Unit::render(sf::RenderTarget& target) const
             {
                 sf::Vertex line[] =
                 {
-                    sf::Vertex{ m_position, sf::Color::Yellow },
-                    sf::Vertex{ pAttackCommand->m_pTargetUnit->getPosition(), sf::Color::Yellow }
+                    sf::Vertex{ m_position, sf::Color::Red },
+                    sf::Vertex{ pAttackCommand->m_pTargetUnit->getPosition(), sf::Color::Red }
                 };
 
                 target.draw(line, 2, sf::PrimitiveType::Lines);
@@ -407,10 +411,11 @@ bool Unit::contains(const sf::Vector2f& worldPosition) const
 {
     const sf::Vector2f delta = worldPosition - m_position;
     const float distanceSquared = (delta.x * delta.x) + (delta.y * delta.y);
-    //const float radiusSquared = m_selectionRadius * m_selectionRadius;
-    const float radiusSquared = m_radius * m_radius;
 
-    return distanceSquared <= radiusSquared;
+    const float selectionRadius = m_radius * m_selectionFactor;
+    const float selectionRadiusSquared = selectionRadius * selectionRadius;
+
+    return distanceSquared <= selectionRadiusSquared;
 }
 
 void Unit::applyDamage(float damage)
@@ -453,6 +458,7 @@ void Unit::issueAttackCommand(Unit* pTargetUnit)
 void Unit::clearCommand()
 {
     m_activeCommand.reset();
+    m_currentSpeed = 0.0f;
 }
 
 void Unit::clearAttackCommandIfTarget(const Unit* pTargetUnit)

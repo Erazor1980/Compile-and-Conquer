@@ -93,5 +93,5 @@ protected:
     bool m_bSelected{ false };
 
     std::optional<Command> m_activeCommand;
-    //float m_selectionRadius{ 18.0f };
+    float m_selectionFactor{ 1.8f };
 };
