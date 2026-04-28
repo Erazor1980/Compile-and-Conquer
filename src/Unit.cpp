@@ -21,7 +21,7 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
     if (!m_activeCommand.has_value())
     {
-        updateAutoAttack(vUnits);
+        updateAutoAttack(deltaTime, vUnits);
         return;
     }
 
@@ -53,17 +53,17 @@ void Unit::updateHitEffect(float deltaTime)
     }
 }
 
-void Unit::updateAutoAttack(const std::vector<std::unique_ptr<Unit>>& vUnits)
+void Unit::updateAutoAttack(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits)
 {
     Unit* pEnemy = findEnemyInRange(vUnits);
 
     if (pEnemy == nullptr)
     {
-        resetWeaponDirectionToBody();
+        resetWeaponDirectionToBody(deltaTime);
         return;
     }
 
-    updateWeaponDirectionTo(pEnemy->getPosition());
+    updateWeaponDirectionTo(pEnemy->getPosition(), deltaTime);
     attack(*pEnemy);
 }
 
@@ -73,12 +73,12 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
 
     if (pEnemy != nullptr)
     {
-        updateWeaponDirectionTo(pEnemy->getPosition());
+        updateWeaponDirectionTo(pEnemy->getPosition(), deltaTime);
         attack(*pEnemy);
     }
     else
     {
-        resetWeaponDirectionToBody();
+        resetWeaponDirectionToBody(deltaTime);
     }
 
     const sf::Vector2f toTarget = command.targetPosition - m_position;
@@ -88,7 +88,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     {
         m_position = command.targetPosition;
         m_activeCommand.reset();
-        resetWeaponDirectionToBody();
+        resetWeaponDirectionToBody(deltaTime);
         return;
     }
 
@@ -99,7 +99,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     {
         m_position = command.targetPosition;
         m_activeCommand.reset();
-        resetWeaponDirectionToBody();
+        resetWeaponDirectionToBody(deltaTime);
         return;
     }
 
@@ -113,14 +113,14 @@ void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
     if (command.m_pTargetUnit == nullptr)
     {
         m_activeCommand.reset();
-        resetWeaponDirectionToBody();
+        resetWeaponDirectionToBody(deltaTime);
         return;
     }
 
     if (!command.m_pTargetUnit->isAlive())
     {
         m_activeCommand.reset();
-        resetWeaponDirectionToBody();
+        resetWeaponDirectionToBody(deltaTime);
         return;
     }
 
@@ -129,7 +129,7 @@ void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
     const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
     const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
 
-    updateWeaponDirectionTo(targetPosition);
+    updateWeaponDirectionTo(targetPosition, deltaTime);
 
     if (distanceSquared <= attackRangeSquared)
     {
@@ -138,7 +138,7 @@ void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
         if (!command.m_pTargetUnit->isAlive())
         {
             m_activeCommand.reset();
-            resetWeaponDirectionToBody();
+            resetWeaponDirectionToBody(deltaTime);
         }
 
         return;
@@ -204,12 +204,12 @@ void Unit::attack(Unit& target)
     m_timeSinceLastAttack = 0.0f;
 }
 
-void Unit::updateWeaponDirectionTo(const sf::Vector2f& targetPosition)
+void Unit::updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime)
 {
     // Default units have no directional weapon (yet)
 }
 
-void Unit::resetWeaponDirectionToBody()
+void Unit::resetWeaponDirectionToBody(float deltaTime)
 {
     // Default units have no directional weapon (yet)
 }

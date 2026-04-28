@@ -57,30 +57,40 @@ void Tank::renderBody(sf::RenderTarget& target) const
     target.draw(pivot);
 }
 
-void Tank::updateWeaponDirectionTo(const sf::Vector2f& targetPosition)
+void Tank::updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime)
+{
+    const float targetAngleDegrees = calculateAngleTo(targetPosition);
+    rotateBarrelTowards(targetAngleDegrees, deltaTime);
+}
+
+void Tank::resetWeaponDirectionToBody(float deltaTime)
+{
+    rotateBarrelTowards(m_facingAngleDegrees, deltaTime);
+}
+
+void Tank::rotateBarrelTowards(float targetAngleDegrees, float deltaTime)
+{
+    const float angleDifference = std::remainder(targetAngleDegrees - m_barrelAngleDegrees, 360.0f);
+    const float maxStep = m_barrelTurnSpeedDegreesPerSecond * deltaTime;
+
+    if (std::abs(angleDifference) <= maxStep)
+    {
+        m_barrelAngleDegrees = targetAngleDegrees;
+        return;
+    }
+
+    m_barrelAngleDegrees += std::copysign(maxStep, angleDifference);
+}
+
+float Tank::calculateAngleTo(const sf::Vector2f& targetPosition) const
 {
     const sf::Vector2f toTarget = targetPosition - m_position;
     const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
 
     if (distanceSquared <= 0.0001f)
     {
-        return;
+        return m_barrelAngleDegrees;
     }
 
-    updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
-}
-
-void Tank::resetWeaponDirectionToBody()
-{
-    m_barrelAngleDegrees = m_facingAngleDegrees;
-}
-
-void Tank::updateBarrelDirection(const sf::Vector2f& direction)
-{
-    if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)
-    {
-        return;
-    }
-
-    m_barrelAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
+    return std::atan2(toTarget.y, toTarget.x) * 180.0f / 3.14159265f;
 }

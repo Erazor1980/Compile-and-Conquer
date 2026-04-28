@@ -63,14 +63,14 @@ protected:
     void updateFacingDirection(const sf::Vector2f& direction);
 
     void updateHitEffect(float deltaTime);
-    void updateAutoAttack(const std::vector<std::unique_ptr<Unit>>& vUnits);
+    void updateAutoAttack(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits);
     void updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, MoveCommand& command);
     void updateAttackCommand(float deltaTime, AttackCommand& command);
 
     Unit* findEnemyInRange(const std::vector<std::unique_ptr<Unit>>& vUnits) const;
     void attack(Unit& target);
-    virtual void updateWeaponDirectionTo(const sf::Vector2f& targetPosition);
-    virtual void resetWeaponDirectionToBody(); 
+    virtual void updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime);
+    virtual void resetWeaponDirectionToBody(float deltaTime);
     
 
     sf::Vector2f m_position;

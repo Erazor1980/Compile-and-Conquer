@@ -9,11 +9,13 @@ public:
 
 protected:
     void renderBody(sf::RenderTarget& target) const override;
-    void updateWeaponDirectionTo(const sf::Vector2f& targetPosition) override;
-    void resetWeaponDirectionToBody() override;
+    void updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime) override;
+    void resetWeaponDirectionToBody(float deltaTime) override;
 
 private:
-    void updateBarrelDirection(const sf::Vector2f& direction);
+    void rotateBarrelTowards(float targetAngleDegrees, float deltaTime);
+    float calculateAngleTo(const sf::Vector2f& targetPosition) const;
 
     float m_barrelAngleDegrees{ 0.0f };
+    float m_barrelTurnSpeedDegreesPerSecond{ 120.0f };
 };
