@@ -57,6 +57,27 @@ void Tank::renderBody(sf::RenderTarget& target) const
     target.draw(pivot);
 }
 
+
+void Tank::updateFacingDirection(const sf::Vector2f& direction, float deltaTime)
+{
+    if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)
+    {
+        return;
+    }
+
+    const float targetAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
+    const float angleDifference = std::remainder(targetAngleDegrees - m_facingAngleDegrees, 360.0f);
+    const float maxStep = k_bodyTurnSpeedDegreesPerSecond * deltaTime;
+
+    if (std::abs(angleDifference) <= maxStep)
+    {
+        m_facingAngleDegrees = targetAngleDegrees;
+        return;
+    }
+
+    m_facingAngleDegrees += std::copysign(maxStep, angleDifference);
+}
+
 void Tank::updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime)
 {
     const float targetAngleDegrees = calculateAngleTo(targetPosition);

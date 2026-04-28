@@ -60,7 +60,7 @@ protected:
     virtual void renderBody(sf::RenderTarget& target) const;
     void renderSoldier(sf::RenderTarget& target) const;
     void renderAircraft(sf::RenderTarget& target) const;
-    void updateFacingDirection(const sf::Vector2f& direction);
+    virtual void updateFacingDirection(const sf::Vector2f& direction, float deltaTime);
 
     void updateHitEffect(float deltaTime);
     void updateAutoAttack(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits);

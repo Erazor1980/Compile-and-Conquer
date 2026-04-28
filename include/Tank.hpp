@@ -9,6 +9,7 @@ public:
 
 protected:
     void renderBody(sf::RenderTarget& target) const override;
+    void updateFacingDirection(const sf::Vector2f& direction, float deltaTime) override;
     void updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime) override;
     void resetWeaponDirectionToBody(float deltaTime) override;
     bool canAttackTarget(const Unit& target) const override;
@@ -21,5 +22,6 @@ private:
 
     // constants
     static constexpr float k_allowedAimErrorDegrees{ 10.0f };
-    static constexpr float k_barrelTurnSpeed{ 100.0f };
+    static constexpr float k_barrelTurnSpeed{ 130.0f };
+    static constexpr float k_bodyTurnSpeedDegreesPerSecond{ 100.0f };
 };

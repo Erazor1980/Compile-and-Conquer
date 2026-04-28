@@ -104,7 +104,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     }
 
     const sf::Vector2f direction = toTarget / distance;
-    updateFacingDirection(direction);
+    updateFacingDirection(direction, deltaTime);
     m_position += direction * maxStep;
 }
 
@@ -154,7 +154,7 @@ void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
     }
 
     const sf::Vector2f direction = toTarget / distance;
-    updateFacingDirection(direction);
+    updateFacingDirection(direction, deltaTime);
     m_position += direction * maxStep;
 }
 
@@ -276,7 +276,7 @@ void Unit::render(sf::RenderTarget& target) const
     }
 }
 
-void Unit::updateFacingDirection(const sf::Vector2f& direction)
+void Unit::updateFacingDirection(const sf::Vector2f& direction, float deltaTime)
 {
     if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)
     {
