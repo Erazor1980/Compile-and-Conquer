@@ -62,6 +62,17 @@ private:
     void updateFacingDirection(const sf::Vector2f& direction);
     void updateBarrelDirection(const sf::Vector2f& direction);  // todo: it will be only in the tank class, when we separate unit into derived classes
 
+    void updateHitEffect(float deltaTime);
+    void updateAutoAttack(const std::vector<std::unique_ptr<Unit>>& vUnits);
+    void updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, MoveCommand& command);
+    void updateAttackCommand(float deltaTime, AttackCommand& command);
+
+    Unit* findEnemyInRange(const std::vector<std::unique_ptr<Unit>>& vUnits) const;
+    void attack(Unit& target);
+    void updateWeaponDirectionTo(const sf::Vector2f& targetPosition);
+    void resetWeaponDirectionToBody(); 
+    
+
     sf::Vector2f m_position;
     float m_radius;
     float m_moveSpeed{ 120.0f };

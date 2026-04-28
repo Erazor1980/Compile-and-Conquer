@@ -15,199 +15,221 @@ Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction fac
 
 void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits)
 {
-    if (m_hitEffectTimeRemaining > 0.0f)
-    {
-        m_hitEffectTimeRemaining -= deltaTime;
-
-        if (m_hitEffectTimeRemaining < 0.0f)
-        {
-            m_hitEffectTimeRemaining = 0.0f;
-        }
-    }
+    updateHitEffect(deltaTime);
 
     m_timeSinceLastAttack += deltaTime;
 
-    // auto attack target in range, if no active command
     if (!m_activeCommand.has_value())
     {
-        const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
-
-        for (const std::unique_ptr<Unit>& pUnit : vUnits)
-        {
-            if (pUnit.get() == this)
-            {
-                continue;
-            }
-
-            if (!pUnit->isAlive())
-            {
-                continue;
-            }
-
-            if (pUnit->getFaction() == m_faction)
-            {
-                continue;
-            }
-
-            const sf::Vector2f toTarget = pUnit->getPosition() - m_position;
-            const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
-
-            if (distanceSquared <= attackRangeSquared)
-            {
-                if (distanceSquared > 0.0001f)
-                {
-                    updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
-                }
-
-                if (m_timeSinceLastAttack >= m_stats.attackInterval)
-                {
-                    const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
-                    pUnit->applyDamage(damage);
-
-                    m_timeSinceLastAttack = 0.0f;
-                }
-
-                break;
-            }
-        }
-
+        updateAutoAttack(vUnits);
         return;
     }
 
-    // move command
     if (MoveCommand* pMoveCommand = std::get_if<MoveCommand>(&m_activeCommand.value()))
     {
-        // attack unit(s) in range (but continue moving)
-        const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
-
-        for (const std::unique_ptr<Unit>& pUnit : vUnits)
-        {
-            if (pUnit.get() == this)
-            {
-                continue;
-            }
-
-            if (!pUnit->isAlive())
-            {
-                continue;
-            }
-
-            if (pUnit->getFaction() == m_faction)
-            {
-                continue;
-            }
-
-            const sf::Vector2f toEnemy = pUnit->getPosition() - m_position;
-            const float enemyDistanceSquared = (toEnemy.x * toEnemy.x) + (toEnemy.y * toEnemy.y);
-
-            if (enemyDistanceSquared <= attackRangeSquared)
-            {
-                if (enemyDistanceSquared > 0.0001f)
-                {
-                    updateBarrelDirection(toEnemy / std::sqrt(enemyDistanceSquared));
-                }
-
-                if (m_timeSinceLastAttack >= m_stats.attackInterval)
-                {
-                    const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
-                    pUnit->applyDamage(damage);
-
-                    m_timeSinceLastAttack = 0.0f;
-                }
-
-                break;
-            }
-        }
-
-        const sf::Vector2f toTarget = pMoveCommand->targetPosition - m_position;
-        const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
-
-        if (distanceSquared <= 0.0001f)
-        {
-            m_position = pMoveCommand->targetPosition;
-            m_activeCommand.reset();
-            return;
-        }
-
-        const float distance = std::sqrt(distanceSquared);
-        const float maxStep = m_moveSpeed * deltaTime;
-
-        if (distance <= maxStep)
-        {
-            m_position = pMoveCommand->targetPosition;
-            m_activeCommand.reset();
-            return;
-        }
-
-        const sf::Vector2f direction = toTarget / distance;
-        updateFacingDirection(direction);
-        m_position += direction * maxStep;
+        updateMoveCommand(deltaTime, vUnits, *pMoveCommand);
         return;
     }
 
-    // attack command
     if (AttackCommand* pAttackCommand = std::get_if<AttackCommand>(&m_activeCommand.value()))
     {
-        if (pAttackCommand->m_pTargetUnit == nullptr)
+        updateAttackCommand(deltaTime, *pAttackCommand);
+        return;
+    }
+}
+
+void Unit::updateHitEffect(float deltaTime)
+{
+    if (m_hitEffectTimeRemaining <= 0.0f)
+    {
+        return;
+    }
+
+    m_hitEffectTimeRemaining -= deltaTime;
+
+    if (m_hitEffectTimeRemaining < 0.0f)
+    {
+        m_hitEffectTimeRemaining = 0.0f;
+    }
+}
+
+void Unit::updateAutoAttack(const std::vector<std::unique_ptr<Unit>>& vUnits)
+{
+    Unit* pEnemy = findEnemyInRange(vUnits);
+
+    if (pEnemy == nullptr)
+    {
+        resetWeaponDirectionToBody();
+        return;
+    }
+
+    updateWeaponDirectionTo(pEnemy->getPosition());
+    attack(*pEnemy);
+}
+
+void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, MoveCommand& command)
+{
+    Unit* pEnemy = findEnemyInRange(vUnits);
+
+    if (pEnemy != nullptr)
+    {
+        updateWeaponDirectionTo(pEnemy->getPosition());
+        attack(*pEnemy);
+    }
+    else
+    {
+        resetWeaponDirectionToBody();
+    }
+
+    const sf::Vector2f toTarget = command.targetPosition - m_position;
+    const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
+
+    if (distanceSquared <= 0.0001f)
+    {
+        m_position = command.targetPosition;
+        m_activeCommand.reset();
+        resetWeaponDirectionToBody();
+        return;
+    }
+
+    const float distance = std::sqrt(distanceSquared);
+    const float maxStep = m_moveSpeed * deltaTime;
+
+    if (distance <= maxStep)
+    {
+        m_position = command.targetPosition;
+        m_activeCommand.reset();
+        resetWeaponDirectionToBody();
+        return;
+    }
+
+    const sf::Vector2f direction = toTarget / distance;
+    updateFacingDirection(direction);
+    m_position += direction * maxStep;
+}
+
+void Unit::updateAttackCommand(float deltaTime, AttackCommand& command)
+{
+    if (command.m_pTargetUnit == nullptr)
+    {
+        m_activeCommand.reset();
+        resetWeaponDirectionToBody();
+        return;
+    }
+
+    if (!command.m_pTargetUnit->isAlive())
+    {
+        m_activeCommand.reset();
+        resetWeaponDirectionToBody();
+        return;
+    }
+
+    const sf::Vector2f targetPosition = command.m_pTargetUnit->getPosition();
+    const sf::Vector2f toTarget = targetPosition - m_position;
+    const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
+    const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
+
+    updateWeaponDirectionTo(targetPosition);
+
+    if (distanceSquared <= attackRangeSquared)
+    {
+        attack(*command.m_pTargetUnit);
+
+        if (!command.m_pTargetUnit->isAlive())
         {
             m_activeCommand.reset();
-            return;
+            resetWeaponDirectionToBody();
         }
 
-        if (!pAttackCommand->m_pTargetUnit->isAlive())
+        return;
+    }
+
+    const float distance = std::sqrt(distanceSquared);
+    const float maxStep = m_moveSpeed * deltaTime;
+
+    if (distance <= maxStep)
+    {
+        m_position = targetPosition;
+        return;
+    }
+
+    const sf::Vector2f direction = toTarget / distance;
+    updateFacingDirection(direction);
+    m_position += direction * maxStep;
+}
+
+Unit* Unit::findEnemyInRange(const std::vector<std::unique_ptr<Unit>>& vUnits) const
+{
+    const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
+
+    for (const std::unique_ptr<Unit>& pUnit : vUnits)
+    {
+        if (pUnit.get() == this)
         {
-            m_activeCommand.reset();
-            return;
+            continue;
         }
 
-        const sf::Vector2f targetPosition = pAttackCommand->m_pTargetUnit->getPosition();
-        const sf::Vector2f toTarget = targetPosition - m_position;
+        if (!pUnit->isAlive())
+        {
+            continue;
+        }
+
+        if (pUnit->getFaction() == m_faction)
+        {
+            continue;
+        }
+
+        const sf::Vector2f toTarget = pUnit->getPosition() - m_position;
         const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
-
-        const float attackRangeSquared = m_stats.attackRange * m_stats.attackRange;
-
-        if (distanceSquared > 0.0001f)
-        {
-            updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
-        }
 
         if (distanceSquared <= attackRangeSquared)
         {
-            if (distanceSquared > 0.0001f)
-            {
-                updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
-            }
-
-            if (m_timeSinceLastAttack >= m_stats.attackInterval)
-            {
-                const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
-                pAttackCommand->m_pTargetUnit->applyDamage(damage);
-
-                m_timeSinceLastAttack = 0.0f;
-
-                if (!pAttackCommand->m_pTargetUnit->isAlive())
-                {
-                    m_activeCommand.reset();
-                }
-            }
-
-            return;
+            return pUnit.get();
         }
+    }
 
-        const float distance = std::sqrt(distanceSquared);
-        const float maxStep = m_moveSpeed * deltaTime;
+    return nullptr;
+}
 
-        if (distance <= maxStep)
-        {
-            m_position = targetPosition;
-            return;
-        }
-
-        const sf::Vector2f direction = toTarget / distance;
-        updateFacingDirection(direction);
-        m_position += direction * maxStep;
+void Unit::attack(Unit& target)
+{
+    if (m_timeSinceLastAttack < m_stats.attackInterval)
+    {
         return;
     }
+
+    const float damage = m_stats.attackDamagePerSecond * m_stats.attackInterval;
+    target.applyDamage(damage);
+
+    m_timeSinceLastAttack = 0.0f;
+}
+
+void Unit::updateWeaponDirectionTo(const sf::Vector2f& targetPosition)
+{
+    if (m_type != UnitType::Tank)
+    {
+        return;
+    }
+
+    const sf::Vector2f toTarget = targetPosition - m_position;
+    const float distanceSquared = (toTarget.x * toTarget.x) + (toTarget.y * toTarget.y);
+
+    if (distanceSquared <= 0.0001f)
+    {
+        return;
+    }
+
+    updateBarrelDirection(toTarget / std::sqrt(distanceSquared));
+}
+
+void Unit::resetWeaponDirectionToBody()
+{
+    if (m_type != UnitType::Tank)
+    {
+        return;
+    }
+
+    m_barrelAngleDegrees = m_facingAngleDegrees;
 }
 
 void Unit::render(sf::RenderTarget& target) const
