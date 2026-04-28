@@ -40,6 +40,8 @@ private:
 public:
     void toggleDebugMode();
 private:
+    void renderDebugInfo(sf::RenderTarget& target) const;
+    void renderUnitDebug(sf::RenderTarget& target, const Unit& unit, sf::Text& text) const;    
     bool m_bDebugInfo{ true };
     sf::Font m_debugFont;
 };

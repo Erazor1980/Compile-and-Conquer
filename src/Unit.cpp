@@ -107,6 +107,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
 
     updateFacingDirection(direction, deltaTime);
     m_position += direction * maxStep;
+    m_currentSpeed = maxStep / deltaTime;
 }
 
 void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, AttackCommand& command)
@@ -171,6 +172,7 @@ void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_pt
     }
 
     m_position += direction * maxStep;
+    m_currentSpeed = maxStep / deltaTime;
 }
 
 Unit* Unit::findEnemyInRange(const std::vector<std::unique_ptr<Unit>>& vUnits) const
@@ -374,6 +376,11 @@ UnitFaction Unit::getFaction() const
 float Unit::getHitPoints() const
 {
     return m_hitPoints;
+}
+
+float Unit::getCurrentSpeed() const
+{
+    return m_currentSpeed;
 }
 
 float Unit::getAttackRange() const

@@ -115,51 +115,76 @@ void World::update(float deltaTime)
 
 void World::render(sf::RenderTarget& target) const
 {
-    sf::Text text(m_debugFont);
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
+    {
+        pUnit->render(target);
+    }
+
     if (m_bDebugInfo)
     {
-        text.setCharacterSize(12);
-        text.setFillColor(sf::Color::White);
+        renderDebugInfo(target);
+    }
+}
+void World::renderDebugInfo(sf::RenderTarget& target) const
+{
+    sf::Text text(m_debugFont);
+    text.setCharacterSize(12);
+
+    // draw per-unit debug information
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
+    {
+        renderUnitDebug(target, *pUnit, text);
     }
 
-	for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
-	{
-		pUnit->render(target);
+    // count enemy units
+    const auto enemyCount = std::count_if(
+        m_vUnits.begin(),
+        m_vUnits.end(),
+        [](const std::unique_ptr<Unit>& pUnit)
+        {
+            return pUnit->getFaction() == UnitFaction::Enemy;
+        }
+    );
 
-		if (m_bDebugInfo)
-		{   
-            text.setString(std::to_string(static_cast<int>(pUnit->getHitPoints())));
-            text.setPosition(pUnit->getPosition() + sf::Vector2f{ 16.0f, -18.0f });
+    // draw global unit count info
+    text.setString(
+        "Number units: " +
+        std::to_string(static_cast<int>(m_vUnits.size())) +
+        " (enemies: " +
+        std::to_string(enemyCount) +
+        ")"
+    );
 
-			target.draw(text);
+    text.setPosition(sf::Vector2f{ 16.0f, 18.0f });
+    text.setFillColor(sf::Color::White);
+    target.draw(text);
+}
 
-            const float attackRange = pUnit->getAttackRange();
-            sf::CircleShape rangeCircle(attackRange);
-            rangeCircle.setOrigin({ attackRange, attackRange });
-            rangeCircle.setPosition(pUnit->getPosition());            
-            rangeCircle.setFillColor(sf::Color::Transparent);
-            rangeCircle.setOutlineColor(sf::Color::Blue);
-            rangeCircle.setOutlineThickness(1.5f);
-            target.draw(rangeCircle);
-		}
-	}
 
-    if (m_bDebugInfo)
-    {        
-        auto enemyCount = std::count_if(
-            m_vUnits.begin(),
-            m_vUnits.end(),
-            [](const std::unique_ptr<Unit>& u)
-            {
-                return u->getFaction() == UnitFaction::Enemy;
-            }
-        );
+void World::renderUnitDebug(sf::RenderTarget& target, const Unit& unit, sf::Text& text) const
+{
+    // hitpoints
+    text.setString(std::to_string(static_cast<int>(unit.getHitPoints())));
+    text.setPosition(unit.getPosition() + sf::Vector2f{ 16.0f, -18.0f });
+    text.setFillColor(sf::Color::Green);
+    target.draw(text);
 
-        text.setString("Number units: " + std::to_string(static_cast<int>(m_vUnits.size())) + " (enemies: " + std::to_string(enemyCount) + ")");
-        text.setPosition(sf::Vector2f{ 16.0f, 18.0f });
+    // speed
+    const float speed = unit.getCurrentSpeed();
+    text.setString(std::to_string(static_cast<int>(speed)));
+    text.setPosition(unit.getPosition() + sf::Vector2f{ -10.0f, -30.0f });
+    text.setFillColor(sf::Color::White);
+    target.draw(text);
 
-        target.draw(text);
-    }
+    // range
+    const float attackRange = unit.getAttackRange();
+    sf::CircleShape rangeCircle(attackRange);
+    rangeCircle.setOrigin({ attackRange, attackRange });
+    rangeCircle.setPosition(unit.getPosition());
+    rangeCircle.setFillColor(sf::Color::Transparent);
+    rangeCircle.setOutlineColor(sf::Color::Blue);
+    rangeCircle.setOutlineThickness(1.5f);
+    target.draw(rangeCircle);
 }
 
 void World::clearSelection()

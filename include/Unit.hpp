@@ -40,6 +40,7 @@ public:
     [[nodiscard]] float getRadius() const;
     [[nodiscard]] UnitFaction getFaction() const;
     [[nodiscard]] float getHitPoints() const;
+    [[nodiscard]] float getCurrentSpeed() const;
     [[nodiscard]] float getAttackRange() const;
     [[nodiscard]] bool isAlive() const;
 
@@ -77,6 +78,7 @@ protected:
     sf::Vector2f m_position;
     float m_radius;
     float m_moveSpeed{ 120.0f };
+    float m_currentSpeed{ 0.0f };
     UnitType m_type{ UnitType::Soldier };
     UnitFaction m_faction{ UnitFaction::Player };
     float m_facingAngleDegrees{ 0.0f };
