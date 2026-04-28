@@ -21,6 +21,7 @@ public:
     void handleRightClick(const sf::Vector2f& worldPosition);
 
     void stopSelectedUnits();
+    void setMouseWorldPosition(const sf::Vector2f& worldPosition);
 private:
     void moveSelectedUnitsTo(const sf::Vector2f& targetPosition);
 
@@ -33,8 +34,19 @@ private:
     Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition);
     const Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition) const;
 
+    // hover & selection
+    void renderSelectionMarkers(sf::RenderTarget& target) const;
+    void renderCornerMarker(sf::RenderTarget& target, const Unit& unit, sf::Color color, float scale) const;
+    void renderAttackMarker(sf::RenderTarget& target, const Unit& unit) const;
+    bool hasSelectedPlayerUnits() const;
+
 private:
     std::vector<std::unique_ptr<Unit>> m_vUnits;
+
+    // hover & selection
+    sf::Vector2f m_mouseWorldPosition{};
+    const Unit* m_pHoveredUnit{ nullptr };
+    float m_markerPulseTime{ 0.0f };
 
     // debug stuff
 public:

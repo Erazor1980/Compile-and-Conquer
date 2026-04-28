@@ -18,12 +18,6 @@ void Tank::renderBody(sf::RenderTarget& target) const
     body.setRotation(sf::degrees(m_facingAngleDegrees));
     body.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
 
-    if (m_bSelected)
-    {
-        body.setOutlineThickness(2.0f);
-        body.setOutlineColor(sf::Color::Yellow);
-    }
-
     target.draw(body);
 
     const float barrelLength = tankLength * 0.65f;

@@ -80,6 +80,8 @@ void World::update(float deltaTime)
         return;
     }
 
+    m_markerPulseTime += deltaTime;
+
     for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
         pUnit->update(deltaTime, m_vUnits);
@@ -115,6 +117,8 @@ void World::update(float deltaTime)
                 return !pUnit->isAlive();
             }),
         m_vUnits.end());
+
+    m_pHoveredUnit = findUnitAt(m_mouseWorldPosition);
 }
 
 void World::render(sf::RenderTarget& target) const
@@ -123,6 +127,8 @@ void World::render(sf::RenderTarget& target) const
     {
         pUnit->render(target);
     }
+
+    renderSelectionMarkers(target);
 
     if (m_bDebugInfo)
     {
@@ -401,6 +407,119 @@ const Unit* World::findPlayerUnitAt(const sf::Vector2f& worldPosition) const
     }
 
     return pUnit;
+}
+
+void World::setMouseWorldPosition(const sf::Vector2f& worldPosition)
+{
+    m_mouseWorldPosition = worldPosition;
+
+    const Unit* pNewHoveredUnit = findUnitAt(worldPosition);
+    if (pNewHoveredUnit != m_pHoveredUnit)
+    {
+        m_pHoveredUnit = pNewHoveredUnit;
+        m_markerPulseTime = 0.0f;
+    }
+}
+
+bool World::hasSelectedPlayerUnits() const
+{
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
+    {
+        if (pUnit->isSelected() && pUnit->getFaction() == UnitFaction::Player)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void World::renderSelectionMarkers(sf::RenderTarget& target) const
+{
+    const bool bHasSelectedPlayerUnits = hasSelectedPlayerUnits();
+
+    for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
+    {
+        if (pUnit->isSelected() && pUnit->getFaction() == UnitFaction::Player)
+        {
+            renderCornerMarker(target, *pUnit, sf::Color::White, 1.0f);
+        }
+    }
+
+    if (m_pHoveredUnit == nullptr)
+    {
+        return;
+    }
+
+    const float pulse = 0.75f + 0.25f * std::cos(m_markerPulseTime * 6.0f);
+
+    if (m_pHoveredUnit->getFaction() == UnitFaction::Player)
+    {
+        renderCornerMarker(target, *m_pHoveredUnit, sf::Color::White, pulse);
+        return;
+    }
+
+    if (bHasSelectedPlayerUnits && m_pHoveredUnit->getFaction() == UnitFaction::Enemy)
+    {
+        renderCornerMarker(target, *m_pHoveredUnit, sf::Color::Red, pulse);
+        renderAttackMarker(target, *m_pHoveredUnit);
+    }
+}
+
+void World::renderCornerMarker(sf::RenderTarget& target, const Unit& unit, sf::Color color, float scale) const
+{
+    const float baseSize = unit.getSelectionRadius() * 2.0f;
+    const float size = baseSize * scale;
+    const float halfSize = size * 0.5f;
+    const float cornerLength = size * 0.22f;
+    const sf::Vector2f center = unit.getPosition();
+
+    const sf::Vector2f topLeft{ center.x - halfSize, center.y - halfSize };
+    const sf::Vector2f topRight{ center.x + halfSize, center.y - halfSize };
+    const sf::Vector2f bottomLeft{ center.x - halfSize, center.y + halfSize };
+    const sf::Vector2f bottomRight{ center.x + halfSize, center.y + halfSize };
+
+    const sf::Vertex lines[] =
+    {
+        sf::Vertex{ topLeft, color },
+        sf::Vertex{ topLeft + sf::Vector2f{ cornerLength, 0.0f }, color },
+        sf::Vertex{ topLeft, color },
+        sf::Vertex{ topLeft + sf::Vector2f{ 0.0f, cornerLength }, color },
+
+        sf::Vertex{ topRight, color },
+        sf::Vertex{ topRight + sf::Vector2f{ -cornerLength, 0.0f }, color },
+        sf::Vertex{ topRight, color },
+        sf::Vertex{ topRight + sf::Vector2f{ 0.0f, cornerLength }, color },
+
+        sf::Vertex{ bottomLeft, color },
+        sf::Vertex{ bottomLeft + sf::Vector2f{ cornerLength, 0.0f }, color },
+        sf::Vertex{ bottomLeft, color },
+        sf::Vertex{ bottomLeft + sf::Vector2f{ 0.0f, -cornerLength }, color },
+
+        sf::Vertex{ bottomRight, color },
+        sf::Vertex{ bottomRight + sf::Vector2f{ -cornerLength, 0.0f }, color },
+        sf::Vertex{ bottomRight, color },
+        sf::Vertex{ bottomRight + sf::Vector2f{ 0.0f, -cornerLength }, color }
+    };
+
+    target.draw(lines, 16, sf::PrimitiveType::Lines);
+}
+
+void World::renderAttackMarker(sf::RenderTarget& target, const Unit& unit) const
+{
+    const sf::Vector2f center = unit.getPosition();
+    const float size = unit.getSelectionRadius() * 0.7f;
+    const sf::Color color{ 120, 0, 0 };
+
+    const sf::Vertex lines[] =
+    {
+        sf::Vertex{ center + sf::Vector2f{ -size, -size }, color },
+        sf::Vertex{ center + sf::Vector2f{ size, size }, color },
+        sf::Vertex{ center + sf::Vector2f{ size, -size }, color },
+        sf::Vertex{ center + sf::Vector2f{ -size, size }, color }
+    };
+
+    target.draw(lines, 4, sf::PrimitiveType::Lines);
 }
 
 void World::toggleDebugMode()

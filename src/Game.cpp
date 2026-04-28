@@ -55,9 +55,12 @@ void Game::processEvents()
         }
         else if (const auto* pMouseMoved = event->getIf<sf::Event::MouseMoved>())
         {
+            const sf::Vector2i mousePixelPosition{ pMouseMoved->position.x, pMouseMoved->position.y };
+            const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition);
+            m_world.setMouseWorldPosition(worldPosition);
+
             if (m_bIsSelecting)
             {
-                const sf::Vector2i mousePixelPosition{ pMouseMoved->position.x, pMouseMoved->position.y };
                 m_selectionCurrent = m_window.mapPixelToCoords(mousePixelPosition);
 
                 const float dragThreshold = 5.0f;

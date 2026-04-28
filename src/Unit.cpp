@@ -332,12 +332,6 @@ void Unit::renderSoldier(sf::RenderTarget& target) const
     shape.setPosition(m_position);
     shape.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
 
-    if (m_bSelected)
-    {
-        shape.setOutlineThickness(2.0f);
-        shape.setOutlineColor(sf::Color::Yellow);
-    }
-
     target.draw(shape);
 }
 
@@ -352,12 +346,6 @@ void Unit::renderAircraft(sf::RenderTarget& target) const
     shape.setPosition(m_position);
     shape.setRotation(sf::degrees(m_facingAngleDegrees));
     shape.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
-
-    if (m_bSelected)
-    {
-        shape.setOutlineThickness(2.0f);
-        shape.setOutlineColor(sf::Color::Yellow);
-    }
 
     target.draw(shape);
 }
@@ -390,6 +378,11 @@ float Unit::getCurrentSpeed() const
 float Unit::getAttackRange() const
 {
     return m_stats.attackRange;
+}
+
+float Unit::getSelectionRadius() const
+{
+    return m_radius * m_selectionFactor;
 }
 
 bool Unit::isAlive() const

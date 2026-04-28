@@ -42,6 +42,7 @@ public:
     [[nodiscard]] float getHitPoints() const;
     [[nodiscard]] float getCurrentSpeed() const;
     [[nodiscard]] float getAttackRange() const;
+    [[nodiscard]] float getSelectionRadius() const;
     [[nodiscard]] bool isAlive() const;
 
     void setSelected(bool bSelected);
