@@ -216,15 +216,8 @@ void Unit::resetWeaponDirectionToBody()
 
 void Unit::render(sf::RenderTarget& target) const
 {
-    if (m_type == UnitType::Soldier)
-    {
-        renderSoldier(target);
-    }
-    else if (m_type == UnitType::Aircraft)
-    {
-        renderAircraft(target);
-    }
-
+    renderBody(target);
+    
     if (m_hitEffectTimeRemaining > 0.0f)
     {
         const float normalizedTime = m_hitEffectTimeRemaining / m_hitEffectDuration;
@@ -283,6 +276,18 @@ void Unit::updateFacingDirection(const sf::Vector2f& direction)
     m_facingAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
 }
 
+
+void Unit::renderBody(sf::RenderTarget& target) const
+{
+    if (m_type == UnitType::Soldier)
+    {
+        renderSoldier(target);
+    }
+    else if (m_type == UnitType::Aircraft)
+    {
+        renderAircraft(target);
+    }
+}
 
 void Unit::renderSoldier(sf::RenderTarget& target) const
 {

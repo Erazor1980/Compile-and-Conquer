@@ -7,7 +7,7 @@ Tank::Tank(sf::Vector2f position, float radius, float moveSpeed, UnitFaction fac
 {
 }
 
-void Tank::render(sf::RenderTarget& target) const
+void Tank::renderBody(sf::RenderTarget& target) const
 {
     const float tankLength = m_radius * 2.4f;
     const float tankHeight = m_radius * 1.6f;

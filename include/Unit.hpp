@@ -57,6 +57,7 @@ public:
     [[nodiscard]] bool hasActiveCommand() const;
 
 protected:
+    virtual void renderBody(sf::RenderTarget& target) const;
     void renderSoldier(sf::RenderTarget& target) const;
     void renderAircraft(sf::RenderTarget& target) const;
     void updateFacingDirection(const sf::Vector2f& direction);
