@@ -322,24 +322,10 @@ void Unit::updateFacingDirection(const sf::Vector2f& direction, float deltaTime)
 
 void Unit::renderBody(sf::RenderTarget& target) const
 {
-    if (m_type == UnitType::Soldier)
-    {
-        renderSoldier(target);
-    }
-    else if (m_type == UnitType::Aircraft)
+    if (m_type == UnitType::Aircraft)
     {
         renderAircraft(target);
     }
-}
-
-void Unit::renderSoldier(sf::RenderTarget& target) const
-{
-    sf::CircleShape shape(m_radius);
-    shape.setOrigin({ m_radius, m_radius });
-    shape.setPosition(m_position);
-    shape.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
-
-    target.draw(shape);
 }
 
 void Unit::renderAircraft(sf::RenderTarget& target) const

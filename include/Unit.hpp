@@ -60,7 +60,6 @@ public:
 
 protected:
     virtual void renderBody(sf::RenderTarget& target) const;
-    void renderSoldier(sf::RenderTarget& target) const;
     void renderAircraft(sf::RenderTarget& target) const;
     virtual void updateFacingDirection(const sf::Vector2f& direction, float deltaTime);
 

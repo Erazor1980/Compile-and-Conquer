@@ -6,6 +6,7 @@
 
 #include "World.hpp"
 #include "Tank.hpp"
+#include "Soldier.hpp"
 
 World::World()
 {
@@ -55,18 +56,22 @@ World::World()
     const float tankRadius = 16.0f;
     const float aircraftRadius = 11.0f;
 
+
+
+   // Soldier::Soldier(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats & stats)
+
     // adding some player test units
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 100.0f, 100.0f }, soldierRadius, 120.0f, UnitFaction::Player, UnitType::Soldier, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 500.0f, 700.0f }, soldierRadius, 120.0f, UnitFaction::Player, UnitType::Soldier, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 600.0f, 400.0f }, soldierRadius, 120.0f, UnitFaction::Player, UnitType::Soldier, soldierStats));
+    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 100.0f, 100.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
+    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 500.0f, 700.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
+    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 600.0f, 400.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 200.0f, 180.0f }, tankRadius, 80.0f, UnitFaction::Player, tankStats));
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 400.0f, 280.0f }, tankRadius, 80.0f, UnitFaction::Player, tankStats));
     m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 320.0f, 260.0f }, aircraftRadius, 140.0f, UnitFaction::Player, UnitType::Aircraft, aircraftStats));
 
     // adding some enemy test units
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 300.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, UnitType::Soldier, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 800.0f, 740.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, UnitType::Soldier, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 460.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, UnitType::Soldier, soldierStats));
+    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 800.0f, 300.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
+    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 800.0f, 740.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
+    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 1000.0f, 460.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 800.0f, 600.0f }, tankRadius, 80.0f, UnitFaction::Enemy, tankStats));
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 1000.0f, 760.0f }, tankRadius, 80.0f, UnitFaction::Enemy, tankStats));
     m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 840.0f, 360.0f }, aircraftRadius, 140.0f, UnitFaction::Enemy, UnitType::Aircraft, aircraftStats));
