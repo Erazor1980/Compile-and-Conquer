@@ -16,22 +16,11 @@ World::World()
         throw std::runtime_error("Failed to load debug font: assets/arial.ttf");
     }
 
-    const UnitStats defaultStats{};
+    createTestUnits();
+}
 
-    const UnitStats heavyStats{
-        180.0f,
-        30.0f,
-        170.0f,
-        0.8f
-    };
-
-    const UnitStats fastAttackStats{
-        80.0f,
-        60.0f,
-        55.0f,
-        0.25f
-    };
-
+void World::createTestUnits()
+{
     const UnitStats soldierStats{
        100.0f, // max hit points
        25.0f,  // damage per second
@@ -57,11 +46,7 @@ World::World()
     const float tankRadius = 16.0f;
     const float aircraftRadius = 11.0f;
 
-
-
-   // Soldier::Soldier(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats & stats)
-
-    // adding some player test units
+    // Add player test units
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 100.0f, 100.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 500.0f, 700.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 600.0f, 400.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
@@ -69,7 +54,7 @@ World::World()
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 400.0f, 280.0f }, tankRadius, 80.0f, UnitFaction::Player, tankStats));
     m_vUnits.emplace_back(std::make_unique<Aircraft>(sf::Vector2f{ 320.0f, 260.0f }, aircraftRadius, 140.0f, UnitFaction::Player, aircraftStats));
 
-    // adding some enemy test units
+    // Add enemy test units
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 800.0f, 300.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 800.0f, 740.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 1000.0f, 460.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));

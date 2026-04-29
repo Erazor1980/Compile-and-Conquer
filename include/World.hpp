@@ -23,6 +23,7 @@ public:
     void stopSelectedUnits();
     void setMouseWorldPosition(const sf::Vector2f& worldPosition);
 private:
+    void createTestUnits();
     void moveSelectedUnitsTo(const sf::Vector2f& targetPosition);
 
     Unit* findUnitAt(const sf::Vector2f& worldPosition);
