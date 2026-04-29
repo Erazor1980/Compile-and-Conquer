@@ -322,25 +322,7 @@ void Unit::updateFacingDirection(const sf::Vector2f& direction, float deltaTime)
 
 void Unit::renderBody(sf::RenderTarget& target) const
 {
-    if (m_type == UnitType::Aircraft)
-    {
-        renderAircraft(target);
-    }
-}
-
-void Unit::renderAircraft(sf::RenderTarget& target) const
-{
-    sf::ConvexShape shape;
-    shape.setPointCount(3);
-    shape.setPoint(0, { m_radius * 2.4f, m_radius * 1.2f });
-    shape.setPoint(1, { 0.0f, 0.0f });
-    shape.setPoint(2, { 0.0f, m_radius * 2.4f });
-    shape.setOrigin({ m_radius * 1.2f, m_radius * 1.2f });
-    shape.setPosition(m_position);
-    shape.setRotation(sf::degrees(m_facingAngleDegrees));
-    shape.setFillColor(m_faction == UnitFaction::Player ? sf::Color::Green : sf::Color::Red);
-
-    target.draw(shape);
+    // Base Unit has no body rendering
 }
 
 const sf::Vector2f& Unit::getPosition() const

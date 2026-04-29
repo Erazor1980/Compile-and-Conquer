@@ -7,6 +7,7 @@
 #include "World.hpp"
 #include "Tank.hpp"
 #include "Soldier.hpp"
+#include "Aircraft.hpp"
 
 World::World()
 {
@@ -66,7 +67,7 @@ World::World()
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 600.0f, 400.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 200.0f, 180.0f }, tankRadius, 80.0f, UnitFaction::Player, tankStats));
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 400.0f, 280.0f }, tankRadius, 80.0f, UnitFaction::Player, tankStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 320.0f, 260.0f }, aircraftRadius, 140.0f, UnitFaction::Player, UnitType::Aircraft, aircraftStats));
+    m_vUnits.emplace_back(std::make_unique<Aircraft>(sf::Vector2f{ 320.0f, 260.0f }, aircraftRadius, 140.0f, UnitFaction::Player, aircraftStats));
 
     // adding some enemy test units
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 800.0f, 300.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
@@ -74,8 +75,8 @@ World::World()
     m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 1000.0f, 460.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 800.0f, 600.0f }, tankRadius, 80.0f, UnitFaction::Enemy, tankStats));
     m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 1000.0f, 760.0f }, tankRadius, 80.0f, UnitFaction::Enemy, tankStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 840.0f, 360.0f }, aircraftRadius, 140.0f, UnitFaction::Enemy, UnitType::Aircraft, aircraftStats));
-    m_vUnits.emplace_back(std::make_unique<Unit>(sf::Vector2f{ 1000.0f, 260.0f }, aircraftRadius, 140.0f, UnitFaction::Enemy, UnitType::Aircraft, aircraftStats));
+    m_vUnits.emplace_back(std::make_unique<Aircraft>(sf::Vector2f{ 840.0f, 360.0f }, aircraftRadius, 140.0f, UnitFaction::Enemy, aircraftStats));
+    m_vUnits.emplace_back(std::make_unique<Aircraft>(sf::Vector2f{ 1000.0f, 260.0f }, aircraftRadius, 140.0f, UnitFaction::Enemy, aircraftStats));
 }
 
 void World::update(float deltaTime)
