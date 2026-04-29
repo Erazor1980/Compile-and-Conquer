@@ -21,47 +21,71 @@ World::World()
 
 void World::createTestUnits()
 {
+    // Player units
+    addSoldier(sf::Vector2f{ 100.0f, 100.0f }, UnitFaction::Player);
+    addSoldier(sf::Vector2f{ 500.0f, 700.0f }, UnitFaction::Player);
+    addSoldier(sf::Vector2f{ 600.0f, 400.0f }, UnitFaction::Player);
+
+    addTank(sf::Vector2f{ 200.0f, 180.0f }, UnitFaction::Player);
+    addTank(sf::Vector2f{ 400.0f, 280.0f }, UnitFaction::Player);
+
+    addAircraft(sf::Vector2f{ 320.0f, 260.0f }, UnitFaction::Player);
+
+    // Enemy units
+    addSoldier(sf::Vector2f{ 800.0f, 300.0f }, UnitFaction::Enemy);
+    addSoldier(sf::Vector2f{ 800.0f, 740.0f }, UnitFaction::Enemy);
+    addSoldier(sf::Vector2f{ 1000.0f, 460.0f }, UnitFaction::Enemy);
+
+    addTank(sf::Vector2f{ 800.0f, 600.0f }, UnitFaction::Enemy);
+    addTank(sf::Vector2f{ 1000.0f, 760.0f }, UnitFaction::Enemy);
+
+    addAircraft(sf::Vector2f{ 840.0f, 360.0f }, UnitFaction::Enemy);
+    addAircraft(sf::Vector2f{ 1000.0f, 260.0f }, UnitFaction::Enemy);
+}
+
+void World::addSoldier(const sf::Vector2f& position, UnitFaction faction)
+{
     const UnitStats soldierStats{
-       100.0f, // max hit points
-       25.0f,  // damage per second
-       80.0f,  // attack range
-       0.6f    // attack interval
-    };
-
-    const UnitStats tankStats{
-        220.0f, // max hit points
-        55.0f,  // damage per second
-        160.0f, // attack range
-        0.9f    // attack interval
-    };
-
-    const UnitStats aircraftStats{
-        140.0f, // max hit points
-        35.0f,  // damage per second
-        120.0f, // attack range
-        0.45f   // attack interval
+        100.0f,
+        25.0f,
+        80.0f,
+        0.6f
     };
 
     const float soldierRadius = 8.0f;
+    const float soldierMoveSpeed = 120.0f;
+
+    m_vUnits.emplace_back(std::make_unique<Soldier>(position, soldierRadius, soldierMoveSpeed, faction, soldierStats));
+}
+
+void World::addTank(const sf::Vector2f& position, UnitFaction faction)
+{
+    const UnitStats tankStats{
+        220.0f,
+        55.0f,
+        160.0f,
+        0.9f
+    };
+
     const float tankRadius = 16.0f;
+    const float tankMoveSpeed = 80.0f;
+
+    m_vUnits.emplace_back(std::make_unique<Tank>(position, tankRadius, tankMoveSpeed, faction, tankStats));
+}
+
+void World::addAircraft(const sf::Vector2f& position, UnitFaction faction)
+{
+    const UnitStats aircraftStats{
+        140.0f,
+        35.0f,
+        120.0f,
+        0.45f
+    };
+
     const float aircraftRadius = 11.0f;
+    const float aircraftMoveSpeed = 140.0f;
 
-    // Add player test units
-    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 100.0f, 100.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 500.0f, 700.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 600.0f, 400.0f }, soldierRadius, 120.0f, UnitFaction::Player, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 200.0f, 180.0f }, tankRadius, 80.0f, UnitFaction::Player, tankStats));
-    m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 400.0f, 280.0f }, tankRadius, 80.0f, UnitFaction::Player, tankStats));
-    m_vUnits.emplace_back(std::make_unique<Aircraft>(sf::Vector2f{ 320.0f, 260.0f }, aircraftRadius, 140.0f, UnitFaction::Player, aircraftStats));
-
-    // Add enemy test units
-    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 800.0f, 300.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 800.0f, 740.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Soldier>(sf::Vector2f{ 1000.0f, 460.0f }, soldierRadius, 120.0f, UnitFaction::Enemy, soldierStats));
-    m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 800.0f, 600.0f }, tankRadius, 80.0f, UnitFaction::Enemy, tankStats));
-    m_vUnits.emplace_back(std::make_unique<Tank>(sf::Vector2f{ 1000.0f, 760.0f }, tankRadius, 80.0f, UnitFaction::Enemy, tankStats));
-    m_vUnits.emplace_back(std::make_unique<Aircraft>(sf::Vector2f{ 840.0f, 360.0f }, aircraftRadius, 140.0f, UnitFaction::Enemy, aircraftStats));
-    m_vUnits.emplace_back(std::make_unique<Aircraft>(sf::Vector2f{ 1000.0f, 260.0f }, aircraftRadius, 140.0f, UnitFaction::Enemy, aircraftStats));
+    m_vUnits.emplace_back(std::make_unique<Aircraft>(position, aircraftRadius, aircraftMoveSpeed, faction, aircraftStats));
 }
 
 void World::update(float deltaTime)

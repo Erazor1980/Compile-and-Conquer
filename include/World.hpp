@@ -24,6 +24,9 @@ public:
     void setMouseWorldPosition(const sf::Vector2f& worldPosition);
 private:
     void createTestUnits();
+    void addSoldier(const sf::Vector2f& position, UnitFaction faction);
+    void addTank(const sf::Vector2f& position, UnitFaction faction);
+    void addAircraft(const sf::Vector2f& position, UnitFaction faction);
     void moveSelectedUnitsTo(const sf::Vector2f& targetPosition);
 
     Unit* findUnitAt(const sf::Vector2f& worldPosition);
