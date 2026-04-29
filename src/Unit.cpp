@@ -95,7 +95,8 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
 
     const float distance = std::sqrt(distanceSquared);
     const sf::Vector2f direction = toTarget / distance;
-    const float moveSpeedFactor = calculateMovementSpeedFactor(direction);
+    const sf::Vector2f facingDirection = calculateFacingDirectionForMovement(direction, distance);
+    const float moveSpeedFactor = calculateMovementSpeedFactor(direction, distance);
     const float maxStep = m_moveSpeed * moveSpeedFactor * deltaTime;
 
     if (distance <= maxStep)
@@ -107,7 +108,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
         return;
     }
 
-    updateFacingDirection(direction, deltaTime);
+    updateFacingDirection(facingDirection, deltaTime);
     m_position += direction * maxStep;
     m_currentSpeed = maxStep / deltaTime;
 }
@@ -162,10 +163,11 @@ void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_pt
 
     const float distance = std::sqrt(distanceSquared);
     const sf::Vector2f direction = toTarget / distance;
+    const sf::Vector2f facingDirection = calculateFacingDirectionForMovement(direction, distance);
 
-    updateFacingDirection(direction, deltaTime);
+    updateFacingDirection(facingDirection, deltaTime);
 
-    const float moveSpeedFactor = calculateMovementSpeedFactor(direction);
+    const float moveSpeedFactor = calculateMovementSpeedFactor(direction, distance);
     const float maxStep = m_moveSpeed * moveSpeedFactor * deltaTime;
 
     if (distance <= maxStep)
@@ -245,9 +247,14 @@ bool Unit::canAttackTarget(const Unit& target) const
     return true;
 }
 
-float Unit::calculateMovementSpeedFactor(const sf::Vector2f& direction) const
+float Unit::calculateMovementSpeedFactor(const sf::Vector2f& direction, float distanceToTarget) const
 {
     return 1.0f;
+}
+
+sf::Vector2f Unit::calculateFacingDirectionForMovement(const sf::Vector2f& direction, float distanceToTarget) const
+{
+    return direction;
 }
 
 void Unit::render(sf::RenderTarget& target) const

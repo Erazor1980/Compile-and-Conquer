@@ -72,7 +72,7 @@ void Tank::updateFacingDirection(const sf::Vector2f& direction, float deltaTime)
     m_facingAngleDegrees += std::copysign(maxStep, angleDifference);
 }
 
-float Tank::calculateMovementSpeedFactor(const sf::Vector2f& direction) const
+float Tank::calculateMovementSpeedFactor(const sf::Vector2f& direction, float distanceToTarget) const
 {
     if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)
     {
@@ -81,6 +81,11 @@ float Tank::calculateMovementSpeedFactor(const sf::Vector2f& direction) const
 
     const float targetAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
     const float angleDifference = std::abs(std::remainder(targetAngleDegrees - m_facingAngleDegrees, 360.0f));
+
+    if (angleDifference > k_reverseAngleThresholdDegrees && distanceToTarget <= k_reverseDistanceThreshold)
+    {
+        return k_reverseMoveSpeedFactor;
+    }
 
     const float angleRad = angleDifference * 3.14159265f / 180.0f;
     float factor = std::cos(angleRad);
@@ -91,6 +96,24 @@ float Tank::calculateMovementSpeedFactor(const sf::Vector2f& direction) const
     }
 
     return factor;
+}
+
+sf::Vector2f Tank::calculateFacingDirectionForMovement(const sf::Vector2f& direction, float distanceToTarget) const
+{
+    if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)
+    {
+        return direction;
+    }
+
+    const float targetAngleDegrees = std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f;
+    const float angleDifference = std::abs(std::remainder(targetAngleDegrees - m_facingAngleDegrees, 360.0f));
+
+    if (angleDifference > k_reverseAngleThresholdDegrees && distanceToTarget <= k_reverseDistanceThreshold)
+    {
+        return sf::Vector2f{ -direction.x, -direction.y };
+    }
+
+    return direction;
 }
 
 void Tank::updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime)
