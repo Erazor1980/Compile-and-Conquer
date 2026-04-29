@@ -40,10 +40,19 @@ private:
         Move,
         Attack
     };
+    enum class HoverPreviewType
+    {
+        None,
+        PlayerUnit,
+        Move,
+        Attack
+    };
     void renderCommandPreviewMarker(sf::RenderTarget& target, const sf::Vector2f& position, sf::Color color, CommandPreviewType type) const;
     void renderSelectionMarkers(sf::RenderTarget& target) const;
     void renderCornerMarker(sf::RenderTarget& target, const Unit& unit, sf::Color color, float scale) const;
     bool hasSelectedPlayerUnits() const;
+    void drawThickLine(sf::RenderTarget& target, const sf::Vector2f& from, const sf::Vector2f& to, sf::Color color, float thickness) const;
+    HoverPreviewType getHoverPreviewType(const Unit* pHoveredUnit) const;
 
 private:
     std::vector<std::unique_ptr<Unit>> m_vUnits;
@@ -52,6 +61,7 @@ private:
     sf::Vector2f m_mouseWorldPosition{};
     const Unit* m_pHoveredUnit{ nullptr };
     float m_markerPulseTime{ 0.0f };
+    HoverPreviewType m_hoverPreviewType{ HoverPreviewType::None };
 
     // debug stuff
 public:

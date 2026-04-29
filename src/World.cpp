@@ -414,9 +414,12 @@ void World::setMouseWorldPosition(const sf::Vector2f& worldPosition)
     m_mouseWorldPosition = worldPosition;
 
     const Unit* pNewHoveredUnit = findUnitAt(worldPosition);
-    if (pNewHoveredUnit != m_pHoveredUnit)
+    const HoverPreviewType newHoverPreviewType = getHoverPreviewType(pNewHoveredUnit);
+
+    if (pNewHoveredUnit != m_pHoveredUnit || newHoverPreviewType != m_hoverPreviewType)
     {
         m_pHoveredUnit = pNewHoveredUnit;
+        m_hoverPreviewType = newHoverPreviewType;
         m_markerPulseTime = 0.0f;
     }
 }
@@ -432,6 +435,33 @@ bool World::hasSelectedPlayerUnits() const
     }
 
     return false;
+}
+
+World::HoverPreviewType World::getHoverPreviewType(const Unit* pHoveredUnit) const
+{
+    const bool bHasSelectedPlayerUnits = hasSelectedPlayerUnits();
+
+    if (pHoveredUnit == nullptr)
+    {
+        if (bHasSelectedPlayerUnits)
+        {
+            return HoverPreviewType::Move;
+        }
+
+        return HoverPreviewType::None;
+    }
+
+    if (pHoveredUnit->getFaction() == UnitFaction::Enemy && bHasSelectedPlayerUnits)
+    {
+        return HoverPreviewType::Attack;
+    }
+
+    if (pHoveredUnit->getFaction() == UnitFaction::Player)
+    {
+        return HoverPreviewType::PlayerUnit;
+    }
+
+    return HoverPreviewType::None;
 }
 
 void World::renderSelectionMarkers(sf::RenderTarget& target) const
@@ -560,10 +590,11 @@ void World::renderCommandPreviewMarker(sf::RenderTarget& target, const sf::Vecto
         sf::Vertex{ position + sf::Vector2f{ innerDistance, innerDistance + arrowHalfWidth }, color }
     };
 
-    target.draw(lines, 24, sf::PrimitiveType::Lines);
 
     if (type == CommandPreviewType::Move)
     {
+        target.draw(lines, 24, sf::PrimitiveType::Lines);
+
         const float centerRadius = 3.5f * scale;
 
         sf::CircleShape centerDot;
@@ -588,7 +619,34 @@ void World::renderCommandPreviewMarker(sf::RenderTarget& target, const sf::Vecto
         };
 
         target.draw(cross, 4, sf::PrimitiveType::Lines);
+
+        const float thickness = 2.0f;
+
+        for (std::size_t i = 0; i < 24; i += 2)
+        {
+            drawThickLine(target, lines[i].position, lines[i + 1].position, color, thickness);
+        }
     }
+}
+
+void World::drawThickLine(sf::RenderTarget& target, const sf::Vector2f& from, const sf::Vector2f& to, sf::Color color, float thickness) const
+{
+    const sf::Vector2f direction = to - from;
+    const float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (length <= 0.0f)
+    {
+        return;
+    }
+
+    sf::RectangleShape line;
+    line.setSize(sf::Vector2f{ length, thickness });
+    line.setOrigin(sf::Vector2f{ 0.0f, thickness * 0.5f });
+    line.setPosition(from);
+    line.setRotation(sf::degrees(std::atan2(direction.y, direction.x) * 180.0f / 3.14159265f));
+    line.setFillColor(color);
+
+    target.draw(line);
 }
 
 void World::toggleDebugMode()
