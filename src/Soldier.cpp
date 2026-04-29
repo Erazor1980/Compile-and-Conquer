@@ -1,7 +1,7 @@
 #include "Soldier.hpp"
 
 Soldier::Soldier(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats)
-    : Unit(position, radius, moveSpeed, faction, UnitType::Soldier, stats)
+    : Unit(position, radius, moveSpeed, faction, stats)
 {
     m_gunAngleDegrees = m_facingAngleDegrees;
 }
@@ -33,7 +33,7 @@ void Soldier::renderBody(sf::RenderTarget& target) const
 
     sf::RectangleShape gun({ length, thickness });
 
-    // Ursprung links mittig → rotiert sauber um Zentrum
+    // Use left center as origin so the gun rotates around the unit center
     gun.setOrigin({ 0.0f, thickness * 0.5f });
 
     gun.setPosition(m_position);

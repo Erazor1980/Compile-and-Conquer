@@ -3,7 +3,7 @@
 #include "Tank.hpp"
 
 Tank::Tank(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats)
-    : Unit(position, radius, moveSpeed, faction, UnitType::Tank, stats)
+    : Unit(position, radius, moveSpeed, faction, stats)
 {
 }
 

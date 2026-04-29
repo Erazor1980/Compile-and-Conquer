@@ -1,7 +1,7 @@
 #include "Aircraft.hpp"
 
 Aircraft::Aircraft(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats)
-    : Unit(position, radius, moveSpeed, faction, UnitType::Aircraft, stats)
+    : Unit(position, radius, moveSpeed, faction, stats)
 {
 }
 

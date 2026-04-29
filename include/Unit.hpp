@@ -12,13 +12,6 @@ enum class UnitFaction
     Enemy
 };
 
-enum class UnitType
-{
-    Soldier,
-    Tank,
-    Aircraft
-};
-
 struct UnitStats
 {
     float maxHitPoints{ 200.0f };
@@ -30,7 +23,7 @@ struct UnitStats
 class Unit
 {
 public:
-    Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, UnitType type, const UnitStats& stats = {});
+    Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats = {});
     virtual ~Unit() = default;
 
     void update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits);
@@ -79,7 +72,6 @@ protected:
     float m_radius;
     float m_moveSpeed{ 120.0f };
     float m_currentSpeed{ 0.0f };
-    UnitType m_type{ UnitType::Soldier };
     UnitFaction m_faction{ UnitFaction::Player };
     float m_facingAngleDegrees{ 0.0f };
 

@@ -2,12 +2,11 @@
 
 #include "Unit.hpp"
 
-Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, UnitType type, const UnitStats& stats)
+Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats)
     : m_position(position)
     , m_radius(radius)
     , m_moveSpeed(moveSpeed)
     , m_faction(faction)
-    , m_type(type)
     , m_stats(stats)
     , m_hitPoints(stats.maxHitPoints)
 {
