@@ -451,11 +451,19 @@ void World::renderSelectionMarkers(sf::RenderTarget& target) const
         return;
     }
 
-    const float pulse = 0.75f + 0.25f * std::cos(m_markerPulseTime * 6.0f);
+    const float minPulseScale = 0.70f;
+    const float maxPulseScale = 1.00f;
+    const float pulseSpeed = 9.0f;
+
+    const float pulseT = 0.5f + 0.5f * std::cos(m_markerPulseTime * pulseSpeed);
+    const float pulse = minPulseScale + (maxPulseScale - minPulseScale) * pulseT;
 
     if (m_pHoveredUnit->getFaction() == UnitFaction::Player)
     {
-        renderCornerMarker(target, *m_pHoveredUnit, sf::Color::White, pulse);
+        if (!m_pHoveredUnit->isSelected())
+        {
+            renderCornerMarker(target, *m_pHoveredUnit, sf::Color::White, pulse);
+        }
         return;
     }
 
