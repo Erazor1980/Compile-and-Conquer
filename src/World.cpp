@@ -448,6 +448,10 @@ void World::renderSelectionMarkers(sf::RenderTarget& target) const
 
     if (m_pHoveredUnit == nullptr)
     {
+        if (bHasSelectedPlayerUnits)
+        {
+            renderCommandPreviewMarker(target, m_mouseWorldPosition, sf::Color{ 0, 200, 0 }, CommandPreviewType::Move);
+        }
         return;
     }
 
@@ -466,11 +470,10 @@ void World::renderSelectionMarkers(sf::RenderTarget& target) const
         }
         return;
     }
-
+        
     if (bHasSelectedPlayerUnits && m_pHoveredUnit->getFaction() == UnitFaction::Enemy)
     {
-        renderCornerMarker(target, *m_pHoveredUnit, sf::Color::Red, pulse);
-        renderAttackMarker(target, *m_pHoveredUnit);
+        renderCommandPreviewMarker(target, m_mouseWorldPosition, sf::Color{ 255, 80, 40 }, CommandPreviewType::Attack);
     }
 }
 
@@ -513,21 +516,79 @@ void World::renderCornerMarker(sf::RenderTarget& target, const Unit& unit, sf::C
     target.draw(lines, 16, sf::PrimitiveType::Lines);
 }
 
-void World::renderAttackMarker(sf::RenderTarget& target, const Unit& unit) const
+void World::renderCommandPreviewMarker(sf::RenderTarget& target, const sf::Vector2f& position, sf::Color color, CommandPreviewType type) const
 {
-    const sf::Vector2f center = unit.getPosition();
-    const float size = unit.getSelectionRadius() * 0.7f;
-    const sf::Color color{ 120, 0, 0 };
+    const float minScale = 0.80f;
+    const float maxScale = 1.20f;
+    const float pulseSpeed = 6.0f;
+
+    const float pulseT = 0.5f + 0.5f * std::cos(m_markerPulseTime * pulseSpeed);
+    const float scale = minScale + (maxScale - minScale) * pulseT;
+
+    const float outerDistance = 20.0f * scale;
+    const float innerDistance = 8.0f * scale;
+    const float arrowHalfWidth = 5.0f * scale;
 
     const sf::Vertex lines[] =
     {
-        sf::Vertex{ center + sf::Vector2f{ -size, -size }, color },
-        sf::Vertex{ center + sf::Vector2f{ size, size }, color },
-        sf::Vertex{ center + sf::Vector2f{ size, -size }, color },
-        sf::Vertex{ center + sf::Vector2f{ -size, size }, color }
+        sf::Vertex{ position + sf::Vector2f{ -outerDistance, -outerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance, -innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance, -innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance - arrowHalfWidth, -innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance, -innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance, -innerDistance - arrowHalfWidth }, color },
+
+        sf::Vertex{ position + sf::Vector2f{ outerDistance, -outerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance, -innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance, -innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance + arrowHalfWidth, -innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance, -innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance, -innerDistance - arrowHalfWidth }, color },
+
+        sf::Vertex{ position + sf::Vector2f{ -outerDistance, outerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance, innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance, innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance - arrowHalfWidth, innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance, innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ -innerDistance, innerDistance + arrowHalfWidth }, color },
+
+        sf::Vertex{ position + sf::Vector2f{ outerDistance, outerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance, innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance, innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance + arrowHalfWidth, innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance, innerDistance }, color },
+        sf::Vertex{ position + sf::Vector2f{ innerDistance, innerDistance + arrowHalfWidth }, color }
     };
 
-    target.draw(lines, 4, sf::PrimitiveType::Lines);
+    target.draw(lines, 24, sf::PrimitiveType::Lines);
+
+    if (type == CommandPreviewType::Move)
+    {
+        const float centerRadius = 3.5f * scale;
+
+        sf::CircleShape centerDot;
+        centerDot.setRadius(centerRadius);
+        centerDot.setOrigin(sf::Vector2f{ centerRadius, centerRadius });
+        centerDot.setPosition(position);
+        centerDot.setFillColor(color);
+
+        target.draw(centerDot);
+    }
+    else if (type == CommandPreviewType::Attack)
+    {
+        const float size = 5.0f * scale;
+
+        const sf::Vertex cross[] =
+        {
+            sf::Vertex{ position + sf::Vector2f{ -size, -size }, color },
+            sf::Vertex{ position + sf::Vector2f{ size, size }, color },
+
+            sf::Vertex{ position + sf::Vector2f{ size, -size }, color },
+            sf::Vertex{ position + sf::Vector2f{ -size, size }, color }
+        };
+
+        target.draw(cross, 4, sf::PrimitiveType::Lines);
+    }
 }
 
 void World::toggleDebugMode()

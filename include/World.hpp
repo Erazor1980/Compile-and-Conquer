@@ -35,9 +35,14 @@ private:
     const Unit* findPlayerUnitAt(const sf::Vector2f& worldPosition) const;
 
     // hover & selection
+    enum class CommandPreviewType
+    {
+        Move,
+        Attack
+    };
+    void renderCommandPreviewMarker(sf::RenderTarget& target, const sf::Vector2f& position, sf::Color color, CommandPreviewType type) const;
     void renderSelectionMarkers(sf::RenderTarget& target) const;
     void renderCornerMarker(sf::RenderTarget& target, const Unit& unit, sf::Color color, float scale) const;
-    void renderAttackMarker(sf::RenderTarget& target, const Unit& unit) const;
     bool hasSelectedPlayerUnits() const;
 
 private:
