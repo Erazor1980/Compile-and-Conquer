@@ -320,11 +320,6 @@ void Unit::updateFacingDirection(const sf::Vector2f& direction, float deltaTime)
 }
 
 
-void Unit::renderBody(sf::RenderTarget& target) const
-{
-    // Base Unit has no body rendering
-}
-
 const sf::Vector2f& Unit::getPosition() const
 {
     return m_position;

@@ -59,7 +59,7 @@ public:
     [[nodiscard]] bool hasActiveCommand() const;
 
 protected:
-    virtual void renderBody(sf::RenderTarget& target) const;
+    virtual void renderBody(sf::RenderTarget& target) const = 0;
     virtual void updateFacingDirection(const sf::Vector2f& direction, float deltaTime);
 
     void updateHitEffect(float deltaTime);
