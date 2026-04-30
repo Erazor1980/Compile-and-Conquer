@@ -1,7 +1,8 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
 #include "World.hpp"
+#include <SFML/Graphics/View.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 class Game
 {
@@ -15,10 +16,12 @@ private:
     void render();
 
     void handleSelection(const sf::FloatRect& selectionRect, bool bIsClick);
+    void updateCamera(float deltaTime);
 
 private:    
     sf::RenderWindow m_window;
     World m_world;
+    sf::View m_worldView;
 
     bool m_bIsSelecting{ false };
     bool m_bHasDragged{ false };

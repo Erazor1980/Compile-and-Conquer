@@ -2,6 +2,7 @@
 
 Game::Game()
     : m_window(sf::VideoMode({ 1280u, 1024u }), "Compile and Conquer")
+    , m_worldView(m_window.getDefaultView())
 {
     m_window.setFramerateLimit(60);
 }
@@ -105,12 +106,40 @@ void Game::processEvents()
 
 void Game::update(float deltaTime)
 {
+    updateCamera(deltaTime);
     m_world.update(deltaTime);
+}
+
+void Game::updateCamera(float deltaTime)
+{
+    const float cameraSpeed = 500.0f;
+    sf::Vector2f movement{ 0.0f, 0.0f };
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    {
+        movement.x -= cameraSpeed * deltaTime;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    {
+        movement.x += cameraSpeed * deltaTime;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+    {
+        movement.y -= cameraSpeed * deltaTime;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+    {
+        movement.y += cameraSpeed * deltaTime;
+    }
+
+    m_worldView.move(movement);
 }
 
 void Game::render()
 {
     m_window.clear(sf::Color(30, 30, 30));
+
+    m_window.setView(m_worldView);
     m_world.render(m_window);
 
     if (m_bIsSelecting)
