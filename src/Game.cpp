@@ -95,6 +95,32 @@ void Game::processEvents()
                 }
             }
         }
+        else if (const auto* pMouseWheel = event->getIf<sf::Event::MouseWheelScrolled>())
+        {
+            const sf::Vector2i mousePixelPosition{ pMouseWheel->position.x, pMouseWheel->position.y };
+            const sf::Vector2f worldPositionBeforeZoom = m_window.mapPixelToCoords(mousePixelPosition, m_worldView);
+
+            const float zoomStep = 0.1f;
+
+            if (pMouseWheel->delta > 0.0f)
+            {
+                m_zoomFactor -= zoomStep;
+            }
+            else
+            {
+                m_zoomFactor += zoomStep;
+            }
+
+            m_zoomFactor = std::clamp(m_zoomFactor, m_minZoom, m_maxZoom);
+
+            m_worldView.setSize(m_window.getDefaultView().getSize() * m_zoomFactor);
+
+            const sf::Vector2f worldPositionAfterZoom = m_window.mapPixelToCoords(mousePixelPosition, m_worldView);
+            const sf::Vector2f zoomOffset = worldPositionBeforeZoom - worldPositionAfterZoom;
+
+            m_worldView.move(zoomOffset);
+            clampWorldViewToBounds();
+        }
         else if (const auto* pMouseButtonReleased = event->getIf<sf::Event::MouseButtonReleased>())
         {
             if (pMouseButtonReleased->button == sf::Mouse::Button::Left && m_bIsSelecting)
@@ -215,8 +241,23 @@ void Game::clampWorldViewToBounds()
 
     sf::Vector2f center = m_worldView.getCenter();
 
-    center.x = std::clamp(center.x, minCenterX, maxCenterX);
-    center.y = std::clamp(center.y, minCenterY, maxCenterY);
+    if (minCenterX <= maxCenterX)
+    {
+        center.x = std::clamp(center.x, minCenterX, maxCenterX);
+    }
+    else
+    {
+        center.x = m_worldBounds.position.x + m_worldBounds.size.x * 0.5f;
+    }
+
+    if (minCenterY <= maxCenterY)
+    {
+        center.y = std::clamp(center.y, minCenterY, maxCenterY);
+    }
+    else
+    {
+        center.y = m_worldBounds.position.y + m_worldBounds.size.y * 0.5f;
+    }
 
     m_worldView.setCenter(center);
 }
@@ -268,7 +309,7 @@ void Game::render()
     }
 
     m_window.setView(m_window.getDefaultView());
-    m_world.renderDebugInfoBox(m_window);
+    m_world.renderDebugInfoBox(m_window, m_zoomFactor, m_window.getSize());
 
     m_window.display();
 }

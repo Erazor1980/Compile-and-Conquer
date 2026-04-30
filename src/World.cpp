@@ -2,6 +2,7 @@
 #include <cmath>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 #include <string>
 
 #include "World.hpp"
@@ -177,8 +178,13 @@ void World::renderDebugInfo(sf::RenderTarget& target) const
     }
 }
 
-void World::renderDebugInfoBox(sf::RenderTarget& target) const
+void World::renderDebugInfoBox(sf::RenderTarget& target, float zoomFactor, const sf::Vector2u& windowSize) const
 {
+    if (!m_bDebugInfo)
+    {
+        return;
+    }
+
     const auto enemyCount = std::count_if(
         m_vUnits.begin(),
         m_vUnits.end(),
@@ -188,9 +194,26 @@ void World::renderDebugInfoBox(sf::RenderTarget& target) const
         }
     );
 
+    const std::vector<std::string> vLines{
+        "Number units: " +
+            std::to_string(static_cast<int>(m_vUnits.size())) +
+            " (enemies: " +
+            std::to_string(static_cast<int>(enemyCount)) +
+            ")",
+        "Zoom: " + std::to_string(zoomFactor)
+    };
+
+    const float padding = 10.0f;
+    const float lineHeight = 16.0f;
+    const float boxWidth = 260.0f;
+    const float boxHeight = padding * 2.0f + lineHeight * static_cast<float>(vLines.size());
+
+    const float posX = static_cast<float>(windowSize.x) - boxWidth - 12.0f;
+    const float posY = 12.0f;
+
     sf::RectangleShape box;
-    box.setPosition(sf::Vector2f{ 12.0f, 12.0f });
-    box.setSize(sf::Vector2f{ 220.0f, 34.0f });
+    box.setPosition(sf::Vector2f{ posX, posY });
+    box.setSize(sf::Vector2f{ boxWidth, boxHeight });
     box.setFillColor(sf::Color(0, 0, 0, 120));
     box.setOutlineColor(sf::Color::White);
     box.setOutlineThickness(1.0f);
@@ -199,17 +222,17 @@ void World::renderDebugInfoBox(sf::RenderTarget& target) const
     sf::Text text(m_debugFont);
     text.setCharacterSize(12);
     text.setFillColor(sf::Color::White);
-    text.setPosition(sf::Vector2f{ 20.0f, 20.0f });
 
-    text.setString(
-        "Number units: " +
-        std::to_string(static_cast<int>(m_vUnits.size())) +
-        " (enemies: " +
-        std::to_string(static_cast<int>(enemyCount)) +
-        ")"
-    );
+    for (std::size_t i = 0; i < vLines.size(); ++i)
+    {
+        text.setString(vLines[i]);
+        text.setPosition(sf::Vector2f{
+            posX + padding,
+            posY + padding + lineHeight * static_cast<float>(i)
+            });
 
-    target.draw(text);
+        target.draw(text);
+    }
 }
 
 void World::renderUnitDebug(sf::RenderTarget& target, const Unit& unit) const
