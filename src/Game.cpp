@@ -55,6 +55,13 @@ void Game::processEvents()
                 m_bIsSelecting = true;
                 m_bHasDragged = false;
             }
+            else if (pMouseButtonPressed->button == sf::Mouse::Button::Right)
+            {
+                m_rightMouseStartPixel = sf::Vector2i{ pMouseButtonPressed->position.x, pMouseButtonPressed->position.y };
+                m_rightMouseCurrentPixel = m_rightMouseStartPixel;
+                m_bIsRightMousePressed = true;
+                m_bHasRightMouseDragged = false;
+            }
         }
         else if (const auto* pMouseMoved = event->getIf<sf::Event::MouseMoved>())
         {
@@ -72,6 +79,19 @@ void Game::processEvents()
                     std::abs(m_selectionStart.y - m_selectionCurrent.y) > dragThreshold)
                 {
                     m_bHasDragged = true;
+                }
+            }
+
+            if (m_bIsRightMousePressed)
+            {
+                m_rightMouseCurrentPixel = mousePixelPosition;
+
+                const int dragThreshold = 8;
+                const sf::Vector2i dragDelta = m_rightMouseCurrentPixel - m_rightMouseStartPixel;
+
+                if (std::abs(dragDelta.x) > dragThreshold || std::abs(dragDelta.y) > dragThreshold)
+                {
+                    m_bHasRightMouseDragged = true;
                 }
             }
         }
@@ -98,9 +118,15 @@ void Game::processEvents()
             }
             else if (pMouseButtonReleased->button == sf::Mouse::Button::Right)
             {
-                const sf::Vector2i mousePixelPosition{ pMouseButtonReleased->position.x, pMouseButtonReleased->position.y };
-                const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition, m_worldView);
-                m_world.handleRightClick(worldPosition);
+                if (!m_bHasRightMouseDragged)
+                {
+                    const sf::Vector2i mousePixelPosition{ pMouseButtonReleased->position.x, pMouseButtonReleased->position.y };
+                    const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition, m_worldView);
+                    m_world.handleRightClick(worldPosition);
+                }
+
+                m_bIsRightMousePressed = false;
+                m_bHasRightMouseDragged = false;
             }
         }
     }
@@ -114,9 +140,10 @@ void Game::update(float deltaTime)
 
 void Game::updateCamera(float deltaTime)
 {
-    const float cameraSpeed = 500.0f;
+    const float cameraSpeed = 800.0f;
     sf::Vector2f movement{ 0.0f, 0.0f };
 
+    // keyboard movement
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
     {
         movement.x -= cameraSpeed * deltaTime;
@@ -132,6 +159,44 @@ void Game::updateCamera(float deltaTime)
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
     {
         movement.y += cameraSpeed * deltaTime;
+    }
+
+    // right mouse drag -> camera panning (priority over edge scrolling)
+    if (m_bIsRightMousePressed && m_bHasRightMouseDragged)
+    {
+        const sf::Vector2i mouseDelta = m_rightMouseCurrentPixel - m_rightMouseStartPixel;
+
+        m_worldView.move(sf::Vector2f{
+            static_cast<float>(-mouseDelta.x),
+            static_cast<float>(-mouseDelta.y)
+            });
+
+        m_rightMouseStartPixel = m_rightMouseCurrentPixel;
+    }
+    // edge scrolling (only if not selecting and not dragging with right mouse)
+    else if (!m_bIsSelecting)
+    {
+        const int edgeSize = 40;
+
+        const sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+        const sf::Vector2u windowSize = m_window.getSize();
+
+        if (mousePos.x <= edgeSize)
+        {
+            movement.x -= cameraSpeed * deltaTime;
+        }
+        if (mousePos.x >= static_cast<int>(windowSize.x) - edgeSize)
+        {
+            movement.x += cameraSpeed * deltaTime;
+        }
+        if (mousePos.y <= edgeSize)
+        {
+            movement.y -= cameraSpeed * deltaTime;
+        }
+        if (mousePos.y >= static_cast<int>(windowSize.y) - edgeSize)
+        {
+            movement.y += cameraSpeed * deltaTime;
+        }
     }
 
     m_worldView.move(movement);
