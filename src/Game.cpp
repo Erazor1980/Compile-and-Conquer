@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Game.hpp"
 
 Game::Game()
@@ -133,6 +135,39 @@ void Game::updateCamera(float deltaTime)
     }
 
     m_worldView.move(movement);
+    clampWorldViewToBounds();
+}
+
+void Game::clampWorldViewToBounds()
+{
+    const sf::Vector2f viewSize = m_worldView.getSize();
+    const sf::Vector2f halfViewSize{ viewSize.x * 0.5f, viewSize.y * 0.5f };
+
+    const float minCenterX = m_worldBounds.position.x + halfViewSize.x;
+    const float maxCenterX = m_worldBounds.position.x + m_worldBounds.size.x - halfViewSize.x;
+    const float minCenterY = m_worldBounds.position.y + halfViewSize.y;
+    const float maxCenterY = m_worldBounds.position.y + m_worldBounds.size.y - halfViewSize.y;
+
+    sf::Vector2f center = m_worldView.getCenter();
+
+    center.x = std::clamp(center.x, minCenterX, maxCenterX);
+    center.y = std::clamp(center.y, minCenterY, maxCenterY);
+
+    m_worldView.setCenter(center);
+}
+
+void Game::renderWorldBounds()
+{
+    const float thickness = 6.0f;
+
+    sf::RectangleShape boundsRect;
+    boundsRect.setPosition(m_worldBounds.position + sf::Vector2f{ thickness * 0.5f, thickness * 0.5f });
+    boundsRect.setSize(m_worldBounds.size - sf::Vector2f{ thickness, thickness });
+    boundsRect.setFillColor(sf::Color::Transparent);
+    boundsRect.setOutlineColor(sf::Color::Green);
+    boundsRect.setOutlineThickness(thickness);
+
+    m_window.draw(boundsRect);
 }
 
 void Game::render()
@@ -141,6 +176,9 @@ void Game::render()
 
     m_window.setView(m_worldView);
     m_world.render(m_window);
+    
+    m_window.setView(m_worldView);
+    renderWorldBounds();
 
     if (m_bIsSelecting)
     {

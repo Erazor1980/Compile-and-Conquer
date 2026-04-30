@@ -17,11 +17,14 @@ private:
 
     void handleSelection(const sf::FloatRect& selectionRect, bool bIsClick);
     void updateCamera(float deltaTime);
+    void clampWorldViewToBounds();
+    void renderWorldBounds();
 
 private:
     // --- Core ---
     sf::RenderWindow m_window;                // main render window
     World m_world;                            // game world containing all units
+    sf::FloatRect m_worldBounds{ sf::Vector2f{ 0.0f, 0.0f }, sf::Vector2f{ 3000.0f, 2000.0f } };
 
     // --- Camera / View ---
     sf::View m_worldView;                     // camera view used for world rendering and navigation
