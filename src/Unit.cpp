@@ -364,6 +364,16 @@ void Unit::setSelected(bool bSelected)
     m_bSelected = bSelected;
 }
 
+void Unit::setFacingAngleDegrees(float facingAngleDegrees)
+{
+    m_facingAngleDegrees = facingAngleDegrees;
+}
+
+float Unit::getFacingAngleDegrees() const
+{
+    return m_facingAngleDegrees;
+}
+
 bool Unit::isSelected() const
 {
     return m_bSelected;

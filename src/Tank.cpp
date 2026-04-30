@@ -7,6 +7,12 @@ Tank::Tank(sf::Vector2f position, float radius, float moveSpeed, UnitFaction fac
 {
 }
 
+void Tank::setFacingAngleDegrees(float facingAngleDegrees)
+{
+    Unit::setFacingAngleDegrees(facingAngleDegrees);
+    m_barrelAngleDegrees = facingAngleDegrees;
+}
+
 void Tank::renderBody(sf::RenderTarget& target) const
 {
     const float tankLength = m_radius * 2.4f;

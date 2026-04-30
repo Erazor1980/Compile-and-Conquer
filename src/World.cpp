@@ -8,6 +8,7 @@
 #include "Tank.hpp"
 #include "Soldier.hpp"
 #include "Aircraft.hpp"
+#include "helper.hpp"
 
 World::World()
 {
@@ -43,7 +44,7 @@ void World::createTestUnits()
     addAircraft(sf::Vector2f{ 1000.0f, 260.0f }, UnitFaction::Enemy);
 }
 
-void World::addSoldier(const sf::Vector2f& position, UnitFaction faction)
+void World::addSoldier(const sf::Vector2f& position, UnitFaction faction, float facingAngleDegrees)
 {
     const UnitStats soldierStats{
         100.0f,
@@ -55,10 +56,15 @@ void World::addSoldier(const sf::Vector2f& position, UnitFaction faction)
     const float soldierRadius = 8.0f;
     const float soldierMoveSpeed = 120.0f;
 
-    m_vUnits.emplace_back(std::make_unique<Soldier>(position, soldierRadius, soldierMoveSpeed, faction, soldierStats));
+    auto pUnit = std::make_unique<Soldier>(position, soldierRadius, soldierMoveSpeed, faction, soldierStats);
+
+    const float angle = (facingAngleDegrees < 0.0f) ? getRandomAngle() : facingAngleDegrees;
+    pUnit->setFacingAngleDegrees(angle);
+
+    m_vUnits.emplace_back(std::move(pUnit));
 }
 
-void World::addTank(const sf::Vector2f& position, UnitFaction faction)
+void World::addTank(const sf::Vector2f& position, UnitFaction faction, float facingAngleDegrees)
 {
     const UnitStats tankStats{
         220.0f,
@@ -70,10 +76,15 @@ void World::addTank(const sf::Vector2f& position, UnitFaction faction)
     const float tankRadius = 16.0f;
     const float tankMoveSpeed = 80.0f;
 
-    m_vUnits.emplace_back(std::make_unique<Tank>(position, tankRadius, tankMoveSpeed, faction, tankStats));
+    auto pUnit = std::make_unique<Tank>(position, tankRadius, tankMoveSpeed, faction, tankStats);
+
+    const float angle = (facingAngleDegrees < 0.0f) ? getRandomAngle() : facingAngleDegrees;
+    pUnit->setFacingAngleDegrees(angle);
+
+    m_vUnits.emplace_back(std::move(pUnit));
 }
 
-void World::addAircraft(const sf::Vector2f& position, UnitFaction faction)
+void World::addAircraft(const sf::Vector2f& position, UnitFaction faction, float facingAngleDegrees)
 {
     const UnitStats aircraftStats{
         140.0f,
@@ -85,7 +96,12 @@ void World::addAircraft(const sf::Vector2f& position, UnitFaction faction)
     const float aircraftRadius = 11.0f;
     const float aircraftMoveSpeed = 140.0f;
 
-    m_vUnits.emplace_back(std::make_unique<Aircraft>(position, aircraftRadius, aircraftMoveSpeed, faction, aircraftStats));
+    auto pUnit = std::make_unique<Aircraft>(position, aircraftRadius, aircraftMoveSpeed, faction, aircraftStats);
+
+    const float angle = (facingAngleDegrees < 0.0f) ? getRandomAngle() : facingAngleDegrees;
+    pUnit->setFacingAngleDegrees(angle);
+
+    m_vUnits.emplace_back(std::move(pUnit));
 }
 
 void World::update(float deltaTime)

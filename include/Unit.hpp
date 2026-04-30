@@ -30,6 +30,7 @@ public:
     virtual void render(sf::RenderTarget& target) const;
 
     [[nodiscard]] const sf::Vector2f& getPosition() const;
+    [[nodiscard]] float getFacingAngleDegrees() const;
     [[nodiscard]] float getRadius() const;
     [[nodiscard]] UnitFaction getFaction() const;
     [[nodiscard]] float getHitPoints() const;
@@ -37,10 +38,11 @@ public:
     [[nodiscard]] float getAttackRange() const;
     [[nodiscard]] float getSelectionRadius() const;
     [[nodiscard]] bool isAlive() const;
-
-    void setSelected(bool bSelected);
     [[nodiscard]] bool isSelected() const;
     [[nodiscard]] bool contains(const sf::Vector2f& worldPosition) const;
+
+    virtual void setFacingAngleDegrees(float facingAngleDegrees);
+    void setSelected(bool bSelected);    
 
     void applyDamage(float damage);
 
@@ -68,22 +70,31 @@ protected:
     virtual float calculateMovementSpeedFactor(const sf::Vector2f& direction, float distanceToTarget) const;
     virtual sf::Vector2f calculateFacingDirectionForMovement(const sf::Vector2f& direction, float distanceToTarget) const;
 
-    sf::Vector2f m_position;
-    float m_radius;
-    float m_moveSpeed{ 120.0f };
-    float m_currentSpeed{ 0.0f };
-    UnitFaction m_faction{ UnitFaction::Player };
-    float m_facingAngleDegrees{ 0.0f };
+    // --- Transform / Spatial ---
+    sf::Vector2f m_position;                  // world position of the unit
+    float m_radius;                           // collision and selection radius
+    float m_facingAngleDegrees{ 0.0f };       // current facing direction in degrees
 
-    UnitStats m_stats{};
-    float m_hitPoints{ 200.0f };
-    float m_timeSinceLastAttack{ 0.0f };    // time since last attack in seconds
+    // --- Movement ---
+    float m_moveSpeed{ 120.0f };              // base movement speed
+    float m_currentSpeed{ 0.0f };             // current movement speed (can be reduced)
 
-    float m_hitEffectDuration{ 0.12f };
-    float m_hitEffectTimeRemaining{ 0.0f };
+    // --- Ownership / State ---
+    UnitFaction m_faction{ UnitFaction::Player }; // player or enemy affiliation
+    bool m_bSelected{ false };                // selection state
 
-    bool m_bSelected{ false };
+    // --- Combat ---
+    UnitStats m_stats{};                      // combat parameters (hp, damage, range, etc.)
+    float m_hitPoints{ 200.0f };              // current hit points
+    float m_timeSinceLastAttack{ 0.0f };      // time since last attack in seconds
 
-    std::optional<Command> m_activeCommand;
-    float m_selectionFactor{ 1.8f };
+    // --- Effects ---
+    float m_hitEffectDuration{ 0.12f };       // total duration of hit flash effect
+    float m_hitEffectTimeRemaining{ 0.0f };   // remaining time of hit effect
+
+    // --- Command System ---
+    std::optional<Command> m_activeCommand;   // current active command (move, attack, etc.)
+
+    // --- Rendering / UI ---
+    float m_selectionFactor{ 1.8f };          // scale factor for selection visualization
 };
