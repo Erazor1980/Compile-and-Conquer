@@ -43,6 +43,11 @@ void Game::processEvents()
             {
                 m_world.toggleDebugMode();
             }
+            if (pKeyPressed->code == sf::Keyboard::Key::F1)
+            {
+                m_bIsMouseGrabbed = !m_bIsMouseGrabbed;
+                m_window.setMouseCursorGrabbed(m_bIsMouseGrabbed);
+            }
         }
         // unit selection (including box)
         else if (const auto* pMouseButtonPressed = event->getIf<sf::Event::MouseButtonPressed>())
@@ -309,7 +314,7 @@ void Game::render()
     }
 
     m_window.setView(m_window.getDefaultView());
-    m_world.renderDebugInfoBox(m_window, m_zoomFactor, m_window.getSize());
+    m_world.renderDebugInfoBox(m_window, m_zoomFactor, m_window.getSize(), m_bIsMouseGrabbed);
 
     m_window.display();
 }

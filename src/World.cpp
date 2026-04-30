@@ -178,7 +178,7 @@ void World::renderDebugInfo(sf::RenderTarget& target) const
     }
 }
 
-void World::renderDebugInfoBox(sf::RenderTarget& target, float zoomFactor, const sf::Vector2u& windowSize) const
+void World::renderDebugInfoBox(sf::RenderTarget& target, float zoomFactor, const sf::Vector2u& windowSize, bool bIsMouseGrabbed) const
 {
     if (!m_bDebugInfo)
     {
@@ -200,7 +200,8 @@ void World::renderDebugInfoBox(sf::RenderTarget& target, float zoomFactor, const
             " (enemies: " +
             std::to_string(static_cast<int>(enemyCount)) +
             ")",
-        "Zoom: " + std::to_string(zoomFactor)
+        "Zoom: " + std::to_string(zoomFactor),
+        std::string("F1: Mouse Grab ") + (bIsMouseGrabbed ? "ON" : "OFF")
     };
 
     const float padding = 10.0f;

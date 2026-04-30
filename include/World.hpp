@@ -70,7 +70,7 @@ private:
     // debug stuff
 public:
     void toggleDebugMode();
-    void renderDebugInfoBox(sf::RenderTarget& target, float zoomFactor, const sf::Vector2u& windowSize) const;
+    void renderDebugInfoBox(sf::RenderTarget& target, float zoomFactor, const sf::Vector2u& windowSize, bool bIsMouseGrabbed) const;
 private:
     void renderDebugInfo(sf::RenderTarget& target) const;
     void renderUnitDebug(sf::RenderTarget& target, const Unit& unit) const;    
