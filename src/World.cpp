@@ -166,18 +166,19 @@ void World::render(sf::RenderTarget& target) const
         renderDebugInfo(target);
     }
 }
+
+
 void World::renderDebugInfo(sf::RenderTarget& target) const
 {
-    sf::Text text(m_debugFont);
-    text.setCharacterSize(12);
-
     // draw per-unit debug information
     for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        renderUnitDebug(target, *pUnit, text);
+        renderUnitDebug(target, *pUnit);
     }
+}
 
-    // count enemy units
+void World::renderDebugInfoBox(sf::RenderTarget& target) const
+{
     const auto enemyCount = std::count_if(
         m_vUnits.begin(),
         m_vUnits.end(),
@@ -187,23 +188,35 @@ void World::renderDebugInfo(sf::RenderTarget& target) const
         }
     );
 
-    // draw global unit count info
+    sf::RectangleShape box;
+    box.setPosition(sf::Vector2f{ 12.0f, 12.0f });
+    box.setSize(sf::Vector2f{ 220.0f, 34.0f });
+    box.setFillColor(sf::Color(0, 0, 0, 120));
+    box.setOutlineColor(sf::Color::White);
+    box.setOutlineThickness(1.0f);
+    target.draw(box);
+
+    sf::Text text(m_debugFont);
+    text.setCharacterSize(12);
+    text.setFillColor(sf::Color::White);
+    text.setPosition(sf::Vector2f{ 20.0f, 20.0f });
+
     text.setString(
         "Number units: " +
         std::to_string(static_cast<int>(m_vUnits.size())) +
         " (enemies: " +
-        std::to_string(enemyCount) +
+        std::to_string(static_cast<int>(enemyCount)) +
         ")"
     );
 
-    text.setPosition(sf::Vector2f{ 16.0f, 18.0f });
-    text.setFillColor(sf::Color::White);
     target.draw(text);
 }
 
-
-void World::renderUnitDebug(sf::RenderTarget& target, const Unit& unit, sf::Text& text) const
+void World::renderUnitDebug(sf::RenderTarget& target, const Unit& unit) const
 {
+    sf::Text text(m_debugFont);
+    text.setCharacterSize(12);
+
     // hitpoints
     text.setString(std::to_string(static_cast<int>(unit.getHitPoints())));
     text.setPosition(unit.getPosition() + sf::Vector2f{ 16.0f, -18.0f });

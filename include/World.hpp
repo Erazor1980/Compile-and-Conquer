@@ -70,9 +70,10 @@ private:
     // debug stuff
 public:
     void toggleDebugMode();
+    void renderDebugInfoBox(sf::RenderTarget& target) const;
 private:
     void renderDebugInfo(sf::RenderTarget& target) const;
-    void renderUnitDebug(sf::RenderTarget& target, const Unit& unit, sf::Text& text) const;    
+    void renderUnitDebug(sf::RenderTarget& target, const Unit& unit) const;    
     bool m_bDebugInfo{ true };
     sf::Font m_debugFont;
 };

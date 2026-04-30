@@ -48,7 +48,7 @@ void Game::processEvents()
             if (pMouseButtonPressed->button == sf::Mouse::Button::Left)
             {
                 const sf::Vector2i mousePixelPosition{ pMouseButtonPressed->position.x, pMouseButtonPressed->position.y };
-                m_selectionStart = m_window.mapPixelToCoords(mousePixelPosition);
+                m_selectionStart = m_window.mapPixelToCoords(mousePixelPosition, m_worldView);
                 m_selectionCurrent = m_selectionStart;
                 m_bIsSelecting = true;
                 m_bHasDragged = false;
@@ -57,12 +57,12 @@ void Game::processEvents()
         else if (const auto* pMouseMoved = event->getIf<sf::Event::MouseMoved>())
         {
             const sf::Vector2i mousePixelPosition{ pMouseMoved->position.x, pMouseMoved->position.y };
-            const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition);
+            const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition, m_worldView);
             m_world.setMouseWorldPosition(worldPosition);
 
             if (m_bIsSelecting)
             {
-                m_selectionCurrent = m_window.mapPixelToCoords(mousePixelPosition);
+                m_selectionCurrent = m_window.mapPixelToCoords(mousePixelPosition, m_worldView);
 
                 const float dragThreshold = 5.0f;
 
@@ -97,7 +97,7 @@ void Game::processEvents()
             else if (pMouseButtonReleased->button == sf::Mouse::Button::Right)
             {
                 const sf::Vector2i mousePixelPosition{ pMouseButtonReleased->position.x, pMouseButtonReleased->position.y };
-                const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition);
+                const sf::Vector2f worldPosition = m_window.mapPixelToCoords(mousePixelPosition, m_worldView);
                 m_world.handleRightClick(worldPosition);
             }
         }
@@ -163,6 +163,9 @@ void Game::render()
 
         m_window.draw(rect);
     }
+
+    m_window.setView(m_window.getDefaultView());
+    m_world.renderDebugInfoBox(m_window);
 
     m_window.display();
 }

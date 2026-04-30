@@ -18,14 +18,18 @@ private:
     void handleSelection(const sf::FloatRect& selectionRect, bool bIsClick);
     void updateCamera(float deltaTime);
 
-private:    
-    sf::RenderWindow m_window;
-    World m_world;
-    sf::View m_worldView;
+private:
+    // --- Core ---
+    sf::RenderWindow m_window;                // main render window
+    World m_world;                            // game world containing all units
 
-    bool m_bIsSelecting{ false };
-    bool m_bHasDragged{ false };
+    // --- Camera / View ---
+    sf::View m_worldView;                     // camera view used for world rendering and navigation
 
-    sf::Vector2f m_selectionStart;
-    sf::Vector2f m_selectionCurrent;
+    // --- Selection Input State ---
+    bool m_bIsSelecting{ false };             // true while left mouse button is held down
+    bool m_bHasDragged{ false };              // true if mouse moved enough to count as drag selection
+
+    sf::Vector2f m_selectionStart;            // world position where selection started (mouse down)
+    sf::Vector2f m_selectionCurrent;          // current world position of mouse during selection
 };
