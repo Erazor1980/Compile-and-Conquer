@@ -49,9 +49,25 @@ bool TerrainMap::loadFromImage(const std::string& filePath)
         }
     }
 
-    if (!m_texture.loadFromImage(image))
+    // --- Build render image using game colors ---
+    sf::Image renderImage;
+    renderImage.resize({ m_widthInTiles, m_heightInTiles });
+
+    for (unsigned int y = 0; y < m_heightInTiles; ++y)
     {
-        std::cout << "Failed to create terrain texture from image: " << filePath << std::endl;
+        for (unsigned int x = 0; x < m_widthInTiles; ++x)
+        {
+            const TerrainType terrain = m_vTiles[x + y * m_widthInTiles];
+            const sf::Color renderColor = getTerrainColor(terrain);
+
+            renderImage.setPixel({ x, y }, renderColor);
+        }
+    }
+
+    // --- Use render image for texture ---
+    if (!m_texture.loadFromImage(renderImage))
+    {
+        std::cout << "Failed to create terrain texture from render image: " << filePath << std::endl;
         return false;
     }
 
