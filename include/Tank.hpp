@@ -11,6 +11,7 @@ public:
 protected:
     void renderBody(sf::RenderTarget& target) const override;
     void updateFacingDirection(const sf::Vector2f& direction, float deltaTime) override;
+    [[nodiscard]] float getTerrainMovementFactor(TerrainType terrainType) const override;
     float calculateMovementSpeedFactor(const sf::Vector2f& direction, float distanceToTarget) const override;
     sf::Vector2f calculateFacingDirectionForMovement(const sf::Vector2f& direction, float distanceToTarget) const override;
     void updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime) override;

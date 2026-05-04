@@ -10,6 +10,7 @@ public:
 protected:
     void renderBody(sf::RenderTarget& target) const override;
     void updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float deltaTime) override;
+    [[nodiscard]] float getTerrainMovementFactor(TerrainType terrainType) const override;
     void resetWeaponDirectionToBody(float deltaTime) override;
 
 private:

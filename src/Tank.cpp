@@ -78,6 +78,25 @@ void Tank::updateFacingDirection(const sf::Vector2f& direction, float deltaTime)
     m_facingAngleDegrees += std::copysign(maxStep, angleDifference);
 }
 
+float Tank::getTerrainMovementFactor(TerrainType terrainType) const
+{
+    switch (terrainType)
+    {
+    case TerrainType::Road:
+        return 1.5f;
+    case TerrainType::Grass:
+        return 1.0f;
+    case TerrainType::Dirt:
+        return 0.65f;
+    case TerrainType::Water:
+        return 0.25f;
+    case TerrainType::Mountain:
+        return 0.4f;
+    }
+
+    return 1.0f;
+}
+
 float Tank::calculateMovementSpeedFactor(const sf::Vector2f& direction, float distanceToTarget) const
 {
     if ((direction.x * direction.x) + (direction.y * direction.y) <= 0.0001f)

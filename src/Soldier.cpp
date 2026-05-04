@@ -56,6 +56,25 @@ void Soldier::updateWeaponDirectionTo(const sf::Vector2f& targetPosition, float 
     m_gunAngleDegrees = std::atan2(toTarget.y, toTarget.x) * 180.0f / 3.14159265f;
 }
 
+float Soldier::getTerrainMovementFactor(TerrainType terrainType) const
+{
+    switch (terrainType)
+    {
+    case TerrainType::Road:
+        return 1.1f;
+    case TerrainType::Grass:
+        return 1.0f;
+    case TerrainType::Dirt:
+        return 0.8f;
+    case TerrainType::Water:
+        return 0.35f;
+    case TerrainType::Mountain:
+        return 0.5f;
+    }
+
+    return 1.0f;
+}
+
 void Soldier::resetWeaponDirectionToBody(float deltaTime)
 {
     m_gunAngleDegrees = m_facingAngleDegrees;

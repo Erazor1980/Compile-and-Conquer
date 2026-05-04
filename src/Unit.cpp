@@ -12,7 +12,7 @@ Unit::Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction fac
 {
 }
 
-void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits)
+void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, float terrainMovementFactor)
 {
     updateHitEffect(deltaTime);
 
@@ -26,13 +26,13 @@ void Unit::update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUn
 
     if (MoveCommand* pMoveCommand = std::get_if<MoveCommand>(&m_activeCommand.value()))
     {
-        updateMoveCommand(deltaTime, vUnits, *pMoveCommand);
+        updateMoveCommand(deltaTime, vUnits, *pMoveCommand, terrainMovementFactor);
         return;
     }
 
     if (AttackCommand* pAttackCommand = std::get_if<AttackCommand>(&m_activeCommand.value()))
     {
-        updateAttackCommand(deltaTime, vUnits, *pAttackCommand);
+        updateAttackCommand(deltaTime, vUnits, *pAttackCommand, terrainMovementFactor);
         return;
     }
 }
@@ -66,7 +66,7 @@ void Unit::updateAutoAttack(float deltaTime, const std::vector<std::unique_ptr<U
     attack(*pEnemy);
 }
 
-void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, MoveCommand& command)
+void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, MoveCommand& command, float terrainMovementFactor)
 {
     Unit* pEnemy = findEnemyInRange(vUnits);
 
@@ -96,7 +96,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     const sf::Vector2f direction = toTarget / distance;
     const sf::Vector2f facingDirection = calculateFacingDirectionForMovement(direction, distance);
     const float moveSpeedFactor = calculateMovementSpeedFactor(direction, distance);
-    const float maxStep = m_moveSpeed * moveSpeedFactor * deltaTime;
+    const float maxStep = m_moveSpeed * moveSpeedFactor * terrainMovementFactor * deltaTime;
 
     if (distance <= maxStep)
     {
@@ -112,7 +112,7 @@ void Unit::updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<
     m_currentSpeed = maxStep / deltaTime;
 }
 
-void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, AttackCommand& command)
+void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, AttackCommand& command, float terrainMovementFactor)
 {
     if (command.m_pTargetUnit == nullptr)
     {
@@ -167,7 +167,7 @@ void Unit::updateAttackCommand(float deltaTime, const std::vector<std::unique_pt
     updateFacingDirection(facingDirection, deltaTime);
 
     const float moveSpeedFactor = calculateMovementSpeedFactor(direction, distance);
-    const float maxStep = m_moveSpeed * moveSpeedFactor * deltaTime;
+    const float maxStep = m_moveSpeed * moveSpeedFactor * terrainMovementFactor * deltaTime;
 
     if (distance <= maxStep)
     {
@@ -306,6 +306,25 @@ void Unit::render(sf::RenderTarget& target) const
             }
         }
     }
+}
+
+float Unit::getTerrainMovementFactor(TerrainType terrainType) const
+{
+    switch (terrainType)
+    {
+    case TerrainType::Road:
+        return 1.0f;
+    case TerrainType::Grass:
+        return 1.0f;
+    case TerrainType::Water:
+        return 1.0f;
+    case TerrainType::Dirt:
+        return 1.0f;
+    case TerrainType::Mountain:
+        return 1.0f;
+    }
+
+    return 1.0f;
 }
 
 void Unit::updateFacingDirection(const sf::Vector2f& direction, float deltaTime)

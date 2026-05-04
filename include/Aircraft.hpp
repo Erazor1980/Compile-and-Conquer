@@ -9,4 +9,5 @@ public:
 
 protected:
     void renderBody(sf::RenderTarget& target) const override;
+    [[nodiscard]] float getTerrainMovementFactor(TerrainType terrainType) const override;
 };

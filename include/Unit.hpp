@@ -4,7 +4,9 @@
 #include <optional>
 #include <vector>
 #include <SFML/Graphics.hpp>
+
 #include "Command.hpp"
+#include "TerrainType.hpp"
 
 enum class UnitFaction
 {
@@ -26,7 +28,7 @@ public:
     Unit(sf::Vector2f position, float radius, float moveSpeed, UnitFaction faction, const UnitStats& stats = {});
     virtual ~Unit() = default;
 
-    void update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits);
+    void update(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, float terrainMovementFactor);
     virtual void render(sf::RenderTarget& target) const;
 
     [[nodiscard]] const sf::Vector2f& getPosition() const;
@@ -40,6 +42,7 @@ public:
     [[nodiscard]] bool isAlive() const;
     [[nodiscard]] bool isSelected() const;
     [[nodiscard]] bool contains(const sf::Vector2f& worldPosition) const;
+    [[nodiscard]] virtual float getTerrainMovementFactor(TerrainType terrainType) const;
 
     virtual void setFacingAngleDegrees(float facingAngleDegrees);
     void setSelected(bool bSelected);    
@@ -59,8 +62,8 @@ protected:
 
     void updateHitEffect(float deltaTime);
     void updateAutoAttack(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits);
-    void updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, MoveCommand& command);
-    void updateAttackCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, AttackCommand& command);
+    void updateMoveCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, MoveCommand& command, float terrainMovementFactor);
+    void updateAttackCommand(float deltaTime, const std::vector<std::unique_ptr<Unit>>& vUnits, AttackCommand& command, float terrainMovementFactor);
 
     Unit* findEnemyInRange(const std::vector<std::unique_ptr<Unit>>& vUnits) const;
     void attack(Unit& target);

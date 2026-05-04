@@ -19,3 +19,8 @@ void Aircraft::renderBody(sf::RenderTarget& target) const
 
     target.draw(shape);
 }
+
+float Aircraft::getTerrainMovementFactor(TerrainType terrainType) const
+{
+    return 1.0f;
+}

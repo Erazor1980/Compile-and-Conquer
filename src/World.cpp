@@ -116,7 +116,10 @@ void World::update(float deltaTime)
 
     for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
-        pUnit->update(deltaTime, m_vUnits);
+        const TerrainType terrainType = m_terrainMap.getTerrainAt(pUnit->getPosition());
+        const float terrainMovementFactor = pUnit->getTerrainMovementFactor(terrainType);
+
+        pUnit->update(deltaTime, m_vUnits, terrainMovementFactor);
     }
 
     // cleanup attack commands that reference units which will be removed (avoid dangling pointers)
