@@ -170,6 +170,11 @@ void World::render(sf::RenderTarget& target) const
     }
 }
 
+sf::FloatRect World::getBounds() const
+{
+    return m_terrainMap.getBounds();
+}
+
 
 void World::renderDebugInfo(sf::RenderTarget& target) const
 {

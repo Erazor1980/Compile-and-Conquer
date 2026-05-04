@@ -7,6 +7,9 @@ Game::Game()
     , m_worldView(m_window.getDefaultView())
 {
     m_window.setFramerateLimit(60);
+
+    m_worldBounds = m_world.getBounds();
+    clampWorldViewToBounds();
 }
 
 void Game::run()

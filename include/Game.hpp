@@ -27,7 +27,8 @@ private:
 
     // --- Camera / View ---
     sf::View m_worldView;                     // camera view used for world rendering and navigation
-    sf::FloatRect m_worldBounds{ sf::Vector2f{ 0.0f, 0.0f }, sf::Vector2f{ 3000.0f, 2000.0f } }; // playable world area
+    sf::FloatRect m_worldBounds;              // playable world area, currently derived from terrain map
+
     float m_zoomFactor{ 1.0f };               // current zoom level (1.0 = default)
     float m_minZoom{ 0.5f };                  // minimum zoom factor (closer view)
     float m_maxZoom{ 2.5f };                  // maximum zoom factor (wider view)

@@ -14,6 +14,7 @@ public:
 
     void update(float deltaTime);
     void render(sf::RenderTarget& target) const;
+    [[nodiscard]] sf::FloatRect getBounds() const;
 
     void clearSelection();
     void selectUnitAt(const sf::Vector2f& worldPosition);
