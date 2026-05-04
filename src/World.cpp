@@ -13,10 +13,12 @@
 
 World::World()
 {
-    if (!m_debugFont.openFromFile("assets/arial.ttf"))
+    if (!m_debugFont.openFromFile("assets/fonts/arial.ttf"))
     {
         throw std::runtime_error("Failed to load debug font: assets/arial.ttf");
     }
+
+    m_terrainMap.loadFromImage("assets/levels/test_map.png");
 
     createTestUnits();
 }

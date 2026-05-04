@@ -1,9 +1,12 @@
+#include <iostream>
+
 #include "TerrainMap.hpp"
 
 TerrainMap::TerrainMap()
-{
+    : m_sprite(m_texture)
+{    
     m_vTiles.resize(static_cast<std::size_t>(m_widthInTiles * m_heightInTiles), TerrainType::Grass);
-
+    
     for (unsigned int x = 0; x < m_widthInTiles; ++x)
     {
         m_vTiles[x + 10 * m_widthInTiles] = TerrainType::Road;
@@ -17,24 +20,45 @@ TerrainMap::TerrainMap()
 
 void TerrainMap::render(sf::RenderTarget& target) const
 {
-    sf::RectangleShape tileShape;
-    tileShape.setSize({ m_tileSize, m_tileSize });
+    target.draw(m_sprite);
+}
+
+bool TerrainMap::loadFromImage(const std::string& filePath)
+{
+    sf::Image image;
+    if (!image.loadFromFile(filePath))
+    {
+        std::cout << "Failed to load terrain image: " << filePath << std::endl;
+        return false;
+    }
+
+    m_widthInTiles = image.getSize().x;
+    m_heightInTiles = image.getSize().y;
+
+    m_vTiles.clear();
+    m_vTiles.resize(static_cast<std::size_t>(m_widthInTiles * m_heightInTiles));
 
     for (unsigned int y = 0; y < m_heightInTiles; ++y)
     {
         for (unsigned int x = 0; x < m_widthInTiles; ++x)
         {
-            const TerrainType terrainType = m_vTiles[x + y * m_widthInTiles];
+            const sf::Color color = image.getPixel({ x, y });
+            const TerrainType terrain = colorToTerrainType(color);
 
-            tileShape.setPosition({
-                static_cast<float>(x) * m_tileSize,
-                static_cast<float>(y) * m_tileSize
-                });
-
-            tileShape.setFillColor(getTerrainColor(terrainType));
-            target.draw(tileShape);
+            m_vTiles[x + y * m_widthInTiles] = terrain;
         }
     }
+
+    if (!m_texture.loadFromImage(image))
+    {
+        std::cout << "Failed to create terrain texture from image: " << filePath << std::endl;
+        return false;
+    }
+
+    m_texture.setSmooth(false);
+    m_sprite.setTexture(m_texture, true);
+
+    return true;
 }
 
 sf::FloatRect TerrainMap::getBounds() const
@@ -78,4 +102,45 @@ sf::Color TerrainMap::getTerrainColor(TerrainType terrainType) const
     }
 
     return sf::Color::Magenta;
+}
+
+bool TerrainMap::isColorClose(const sf::Color& a, const sf::Color& b, int tolerance) const
+{
+    return
+        std::abs(static_cast<int>(a.r) - static_cast<int>(b.r)) <= tolerance &&
+        std::abs(static_cast<int>(a.g) - static_cast<int>(b.g)) <= tolerance &&
+        std::abs(static_cast<int>(a.b) - static_cast<int>(b.b)) <= tolerance;
+}
+
+TerrainType TerrainMap::colorToTerrainType(const sf::Color& color) const
+{
+    const int tolerance = 20;
+
+    if (isColorClose(color, sf::Color{ 128,128,128 }, tolerance))
+    {
+        return TerrainType::Road;
+    }
+    if (isColorClose(color, sf::Color{ 0,255,0 }, tolerance))
+    {
+        return TerrainType::Grass;
+    }
+    if (isColorClose(color, sf::Color{ 0,0,255 }, tolerance))
+    {
+        return TerrainType::Water;
+    }
+    if (isColorClose(color, sf::Color{ 139,69,19 }, tolerance))
+    {
+        return TerrainType::Dirt;
+    }
+    if (isColorClose(color, sf::Color{ 0,0,0 }, tolerance))
+    {
+        return TerrainType::Mountain;
+    }
+
+    //std::cout << "Unknown color: ("
+    //    << static_cast<int>(color.r) << ","
+    //    << static_cast<int>(color.g) << ","
+    //    << static_cast<int>(color.b) << ")" << std::endl;
+
+    return TerrainType::Grass;
 }
