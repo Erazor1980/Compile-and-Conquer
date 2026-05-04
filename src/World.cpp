@@ -155,6 +155,8 @@ void World::update(float deltaTime)
 
 void World::render(sf::RenderTarget& target) const
 {
+    m_terrainMap.render(target);
+
     for (const std::unique_ptr<Unit>& pUnit : m_vUnits)
     {
         pUnit->render(target);

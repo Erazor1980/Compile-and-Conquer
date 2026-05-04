@@ -3,7 +3,9 @@
 #include <memory>
 #include <vector>
 #include <SFML/Graphics/Font.hpp>
+
 #include "Unit.hpp"
+#include "TerrainMap.hpp"
 
 class World
 {
@@ -60,6 +62,7 @@ private:
 
 private:
     std::vector<std::unique_ptr<Unit>> m_vUnits;
+    TerrainMap m_terrainMap;
 
     // hover & selection
     sf::Vector2f m_mouseWorldPosition{};
