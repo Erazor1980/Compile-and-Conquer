@@ -19,6 +19,8 @@ World::World()
     }
 
     m_terrainMap.loadFromImage("assets/levels/test_map.png");
+    //m_terrainMap.cleanImageFile("assets/levels/test_map.png", "assets/levels/test_map_clean.png");
+    //m_terrainMap.loadFromImage("assets/levels/test_map_clean.png");
 
     createTestUnits();
 }

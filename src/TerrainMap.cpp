@@ -1,4 +1,5 @@
 #include <iostream>
+#include <array>
 
 #include "TerrainMap.hpp"
 
@@ -108,7 +109,7 @@ sf::Color TerrainMap::getTerrainColor(TerrainType terrainType) const
     case TerrainType::Road:
         return sf::Color(120, 120, 120);
     case TerrainType::Grass:
-        return sf::Color(40, 120, 40);
+        return sf::Color(20, 120, 20);
     case TerrainType::Water:
         return sf::Color(40, 80, 180);
     case TerrainType::Dirt:
@@ -153,10 +154,181 @@ TerrainType TerrainMap::colorToTerrainType(const sf::Color& color) const
         return TerrainType::Mountain;
     }
 
-    //std::cout << "Unknown color: ("
-    //    << static_cast<int>(color.r) << ","
-    //    << static_cast<int>(color.g) << ","
-    //    << static_cast<int>(color.b) << ")" << std::endl;
+    const std::uint32_t key =
+        (static_cast<std::uint32_t>(color.r) << 16) |
+        (static_cast<std::uint32_t>(color.g) << 8) |
+        static_cast<std::uint32_t>(color.b);
+
+    if (m_loggedUnknownColors.insert(key).second)
+    {
+        std::cout << "Unknown color encountered: ("
+            << static_cast<int>(color.r) << ", "
+            << static_cast<int>(color.g) << ", "
+            << static_cast<int>(color.b) << ")" << std::endl;
+    }
 
     return TerrainType::Grass;
+}
+
+
+
+// Temporary terrain map cleaning utility integrated into the game project.
+// Intended to become part of a dedicated external tools pipeline later.
+int TerrainMap::calculateColorDistanceSquared(const sf::Color& a, const sf::Color& b) const
+{
+    const int redDifference = static_cast<int>(a.r) - static_cast<int>(b.r);
+    const int greenDifference = static_cast<int>(a.g) - static_cast<int>(b.g);
+    const int blueDifference = static_cast<int>(a.b) - static_cast<int>(b.b);
+
+    return redDifference * redDifference +
+        greenDifference * greenDifference +
+        blueDifference * blueDifference;
+}
+
+sf::Color TerrainMap::findClosestValidColor(const sf::Color& color) const
+{
+    const std::array<sf::Color, 5> validColors{
+        sf::Color{ 128, 128, 128 },
+        sf::Color{ 0, 255, 0 },
+        sf::Color{ 0, 0, 255 },
+        sf::Color{ 139, 69, 19 },
+        sf::Color{ 0, 0, 0 }
+    };
+
+    sf::Color closestColor = validColors[0];
+    int bestDistance = calculateColorDistanceSquared(color, closestColor);
+
+    for (const sf::Color& validColor : validColors)
+    {
+        const int distance = calculateColorDistanceSquared(color, validColor);
+
+        if (distance < bestDistance)
+        {
+            bestDistance = distance;
+            closestColor = validColor;
+        }
+    }
+
+    return closestColor;
+}
+
+bool TerrainMap::isValidTerrainColor(const sf::Color& color) const
+{
+    return
+        color == sf::Color{ 128, 128, 128 } ||
+        color == sf::Color{ 0, 255, 0 } ||
+        color == sf::Color{ 0, 0, 255 } ||
+        color == sf::Color{ 139, 69, 19 } ||
+        color == sf::Color{ 0, 0, 0 };
+}
+
+sf::Color TerrainMap::findMostCommonValidNeighborColor(const sf::Image& image, unsigned int pixelX, unsigned int pixelY) const
+{
+    const std::array<sf::Color, 5> validColors{
+        sf::Color{ 128, 128, 128 },
+        sf::Color{ 0, 255, 0 },
+        sf::Color{ 0, 0, 255 },
+        sf::Color{ 139, 69, 19 },
+        sf::Color{ 0, 0, 0 }
+    };
+
+    std::array<int, 5> counts{ 0, 0, 0, 0, 0 };
+
+    const sf::Vector2u imageSize = image.getSize();
+
+    for (int offsetY = -1; offsetY <= 1; ++offsetY)
+    {
+        for (int offsetX = -1; offsetX <= 1; ++offsetX)
+        {
+            if (offsetX == 0 && offsetY == 0)
+            {
+                continue;
+            }
+
+            const int neighborX = static_cast<int>(pixelX) + offsetX;
+            const int neighborY = static_cast<int>(pixelY) + offsetY;
+
+            if (neighborX < 0 || neighborY < 0 ||
+                neighborX >= static_cast<int>(imageSize.x) ||
+                neighborY >= static_cast<int>(imageSize.y))
+            {
+                continue;
+            }
+
+            const sf::Color neighborColor = image.getPixel({
+                static_cast<unsigned int>(neighborX),
+                static_cast<unsigned int>(neighborY)
+                });
+
+            for (std::size_t i = 0; i < validColors.size(); ++i)
+            {
+                if (neighborColor == validColors[i])
+                {
+                    ++counts[i];
+                    break;
+                }
+            }
+        }
+    }
+
+    int bestCount = 0;
+    sf::Color bestColor = sf::Color::Transparent;
+
+    for (std::size_t i = 0; i < validColors.size(); ++i)
+    {
+        if (counts[i] > bestCount)
+        {
+            bestCount = counts[i];
+            bestColor = validColors[i];
+        }
+    }
+
+    return bestColor;
+}
+
+bool TerrainMap::cleanImageFile(const std::string& inputFilePath, const std::string& outputFilePath) const
+{
+    sf::Image image;
+    if (!image.loadFromFile(inputFilePath))
+    {
+        std::cout << "Failed to load terrain image for cleaning: " << inputFilePath << std::endl;
+        return false;
+    }
+
+    const sf::Vector2u imageSize = image.getSize();
+    std::size_t correctedPixelCount = 0;
+
+    for (unsigned int y = 0; y < imageSize.y; ++y)
+    {
+        for (unsigned int x = 0; x < imageSize.x; ++x)
+        {
+            const sf::Color originalColor = image.getPixel({ x, y });
+
+            if (isValidTerrainColor(originalColor))
+            {
+                continue;
+            }
+
+            sf::Color replacementColor = findMostCommonValidNeighborColor(image, x, y);
+
+            if (replacementColor == sf::Color::Transparent)
+            {
+                replacementColor = findClosestValidColor(originalColor);
+            }
+
+            image.setPixel({ x, y }, replacementColor);
+            ++correctedPixelCount;
+        }
+    }
+
+    if (!image.saveToFile(outputFilePath))
+    {
+        std::cout << "Failed to save cleaned terrain image: " << outputFilePath << std::endl;
+        return false;
+    }
+
+    std::cout << "Cleaned terrain image saved: " << outputFilePath
+        << " corrected pixels: " << correctedPixelCount << std::endl;
+
+    return true;
 }
